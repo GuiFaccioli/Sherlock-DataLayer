@@ -32,6 +32,8 @@
 - `POST /audits` aceita `mode=page_load` (padrão) ou `mode=interaction`.
 - Auditoria de interação testa até 5 cliques seguros, compara dataLayer antes/depois e separa `pageLoadTrackingRequests` de `interactionTrackingRequests`.
 - Resultados de interação são salvos em `interactions` e `interactionSummary`.
+- Interações agora distinguem `executionStatus` e `interactionStatus`, separando clique executado sem tracking de clique não executado por overlay, timeout ou falha.
+- `interactionSummary` separa `executedWithoutTracking` de `notExecutedWithoutValidation`, evitando transformar falha de auditoria em falha de tracking.
 - Build do backend exclui `frontend/` no `tsconfig.json`; Render compila apenas backend e Vercel compila apenas frontend.
 - Render deve usar Build Filters / Ignore Paths para `frontend/**` e `docs/**`.
 

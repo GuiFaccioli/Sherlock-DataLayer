@@ -12,12 +12,26 @@ export type FailureReason =
 
 export type AuditMode = "page_load" | "interaction";
 
+export type InteractionExecutionStatus = "executed" | "not_executed" | "skipped" | string;
+export type InteractionStatus =
+  | "clicked"
+  | "blocked_by_overlay"
+  | "timeout"
+  | "navigation_changed"
+  | "tracking_detected"
+  | "no_tracking_detected"
+  | "skipped"
+  | "failed"
+  | string;
+
 export interface InteractionResult {
   action: "click";
   selector?: string;
   elementText: string;
   elementTag: string;
   elementRole: string | null;
+  executionStatus?: InteractionExecutionStatus;
+  interactionStatus?: InteractionStatus;
   urlBefore: string;
   urlAfter: string;
   dataLayerEventsBefore?: number;
@@ -25,7 +39,7 @@ export interface InteractionResult {
   newDataLayerEvents: string[];
   trackingRequestsAfterClick: string[];
   trackingDetected: boolean;
-  quality: "high" | "medium" | "low" | string;
+  quality: "high" | "medium" | "low" | "unknown" | string;
   issues: string[];
 }
 
@@ -33,8 +47,15 @@ export interface InteractionSummary {
   enabled: boolean;
   totalElementsFound: number;
   totalElementsTested: number;
+  executedClicks?: number;
+  notExecutedClicks?: number;
+  blockedByOverlay?: number;
+  timeouts?: number;
+  navigationChanges?: number;
   interactionsWithTracking: number;
-  interactionsWithoutTracking: number;
+  executedWithoutTracking?: number;
+  notExecutedWithoutValidation?: number;
+  interactionsWithoutTracking?: number;
   eventsDetected: string[];
   quality: "high" | "medium" | "low" | "unknown" | string;
 }

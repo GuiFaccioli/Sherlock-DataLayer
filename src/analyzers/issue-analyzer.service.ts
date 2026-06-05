@@ -224,22 +224,47 @@ export class IssueAnalyzerService {
       ];
     }
 
-    if (interactionSummary.interactionsWithoutTracking > 0) {
-      return [
-        {
-          severity:
-            interactionSummary.interactionsWithTracking > 0 ? "medium" : "high",
-          title: "Cliques importantes sem sinal visível de tracking",
-          description:
-            "Uma ou mais interações testadas não geraram dataLayer event nem request de tracking visível no navegador.",
-          evidence: { interactionSummary },
-          businessImpact:
-            "CTAs sem eventos visíveis podem reduzir a confiabilidade de métricas de conversão, funil e performance de campanhas.",
-        },
-      ];
+    const issues: IssueEvidence[] = [];
+
+    if (interactionSummary.executedWithoutTracking > 0) {
+      issues.push({
+        severity:
+          interactionSummary.interactionsWithTracking > 0 ? "medium" : "high",
+        title: "Cliques executados sem sinal visível de tracking",
+        description:
+          "Uma ou mais interações executadas não geraram dataLayer event nem request de tracking visível no navegador.",
+        evidence: { interactionSummary },
+        businessImpact:
+          "CTAs executados sem eventos visíveis podem reduzir a confiabilidade de métricas de conversão, funil e performance de campanhas.",
+      });
     }
 
-    return [];
+    if (interactionSummary.blockedByOverlay > 0) {
+      issues.push({
+        severity: "medium",
+        title:
+          "Algumas interações não puderam ser validadas porque um modal ou overlay interceptou os cliques",
+        description:
+          "O Playwright indicou que parte dos elementos não recebeu o clique porque outro elemento estava por cima ou interceptando pointer events.",
+        evidence: { interactionSummary },
+        businessImpact:
+          "Essas interações não devem ser tratadas como sem tracking; elas precisam de nova auditoria após fechar modal/overlay ou investigação manual.",
+      });
+    }
+
+    if (interactionSummary.timeouts > 0) {
+      issues.push({
+        severity: "medium",
+        title: "Algumas interações não puderam ser validadas por timeout",
+        description:
+          "Parte dos cliques não foi executada dentro do tempo limite configurado.",
+        evidence: { interactionSummary },
+        businessImpact:
+          "Timeout de clique é falha de validação da auditoria, não prova de ausência de tracking.",
+      });
+    }
+
+    return issues;
   }
 
   private hasKey(parameters: Record<string, unknown>, key: string): boolean {

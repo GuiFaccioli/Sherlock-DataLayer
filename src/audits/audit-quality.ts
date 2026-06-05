@@ -111,7 +111,10 @@ export function buildInterpretation(
     | {
         enabled?: boolean;
         interactionsWithTracking?: number;
-        interactionsWithoutTracking?: number;
+        executedWithoutTracking?: number;
+        notExecutedWithoutValidation?: number;
+        blockedByOverlay?: number;
+        totalElementsFound?: number;
         totalElementsTested?: number;
       }
     | null
@@ -133,15 +136,28 @@ export function buildInterpretation(
     return "A auditoria coletou alguns sinais, mas a página não foi validada com segurança total. Use o resultado como indício, não como conclusão definitiva.";
   }
 
-  if (interaction?.enabled && (interaction.totalElementsTested ?? 0) > 0) {
-    if ((interaction.interactionsWithTracking ?? 0) > 0) {
-      if (hasTools && (interaction.interactionsWithoutTracking ?? 0) > 0) {
-        return "O site possui tracking no carregamento da página, mas alguns cliques importantes não geraram sinais visíveis. Isso pode indicar tracking incompleto de eventos.";
-      }
-      return "A auditoria testou interações básicas e encontrou sinais de tracking em alguns cliques. Isso indica que parte das ações do usuário está sendo coletada.";
+  if (interaction?.enabled) {
+    if (
+      (interaction.totalElementsFound ?? 0) > 0 &&
+      (interaction.totalElementsTested ?? 0) === 0
+    ) {
+      return "A auditoria encontrou elementos interativos, mas não conseguiu executar cliques suficientes para validar tracking de interação com segurança.";
     }
 
-    return "A auditoria testou interações importantes, mas não encontrou eventos ou requests de tracking após os cliques. Isso pode indicar ausência de tracking em CTAs importantes ou que a coleta ocorre de forma server-side/não visível no navegador.";
+    if ((interaction.notExecutedWithoutValidation ?? 0) > 0) {
+      if (hasTools) {
+        return "O site possui tracking no carregamento da página, mas parte das interações não pôde ser validada porque um modal ou overlay interceptou os cliques. Portanto, não é seguro concluir que esses elementos não possuem tracking.";
+      }
+      return "A auditoria encontrou elementos interativos, mas parte dos cliques não pôde ser executada. Não é seguro concluir ausência de tracking nessas interações.";
+    }
+
+    if ((interaction.interactionsWithTracking ?? 0) > 0) {
+      return "A auditoria executou interações básicas e encontrou sinais de tracking após alguns cliques.";
+    }
+
+    if ((interaction.executedWithoutTracking ?? 0) > 0) {
+      return "A auditoria executou cliques importantes e alguns não geraram dataLayer event nem request de tracking visível. Isso pode indicar tracking incompleto de eventos.";
+    }
   }
 
   if (!hasTools) {

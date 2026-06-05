@@ -1,7 +1,18 @@
-import type { AuditResponse } from "../types/audit";
+import type { AuditResponse, InteractionResult } from "../types/audit";
 
 interface InteractionsPanelProps {
   audit: AuditResponse;
+}
+
+function executionLabel(interaction: InteractionResult): string {
+  if (interaction.executionStatus === "not_executed") return "não executado";
+  if (interaction.executionStatus === "skipped") return "ignorado";
+  return "executado";
+}
+
+function trackingLabel(interaction: InteractionResult): string {
+  if (interaction.executionStatus === "not_executed") return "não validado";
+  return interaction.trackingDetected ? "sim" : "não";
 }
 
 export function InteractionsPanel({ audit }: InteractionsPanelProps) {
@@ -27,12 +38,36 @@ export function InteractionsPanel({ audit }: InteractionsPanelProps) {
             <dd>{summary.totalElementsTested}</dd>
           </div>
           <div>
+            <dt>Cliques executados</dt>
+            <dd>{summary.executedClicks ?? 0}</dd>
+          </div>
+          <div>
+            <dt>Não executados</dt>
+            <dd>{summary.notExecutedClicks ?? 0}</dd>
+          </div>
+          <div>
+            <dt>Bloqueados por overlay</dt>
+            <dd>{summary.blockedByOverlay ?? 0}</dd>
+          </div>
+          <div>
+            <dt>Timeouts</dt>
+            <dd>{summary.timeouts ?? 0}</dd>
+          </div>
+          <div>
+            <dt>Mudanças de URL</dt>
+            <dd>{summary.navigationChanges ?? 0}</dd>
+          </div>
+          <div>
             <dt>Com tracking</dt>
             <dd>{summary.interactionsWithTracking}</dd>
           </div>
           <div>
-            <dt>Sem tracking</dt>
-            <dd>{summary.interactionsWithoutTracking}</dd>
+            <dt>Executados sem tracking</dt>
+            <dd>{summary.executedWithoutTracking ?? summary.interactionsWithoutTracking ?? 0}</dd>
+          </div>
+          <div>
+            <dt>Não validados</dt>
+            <dd>{summary.notExecutedWithoutValidation ?? 0}</dd>
           </div>
           <div>
             <dt>Qualidade</dt>
@@ -60,7 +95,7 @@ export function InteractionsPanel({ audit }: InteractionsPanelProps) {
                   <div>
                     <h3>{interaction.elementText}</h3>
                     <p>
-                      {interaction.elementTag}
+                      Tag: {interaction.elementTag}
                       {interaction.elementRole ? ` · role=${interaction.elementRole}` : ""}
                     </p>
                   </div>
@@ -71,10 +106,18 @@ export function InteractionsPanel({ audit }: InteractionsPanelProps) {
                         : "status-pill neutral"
                     }
                   >
-                    Tracking: {interaction.trackingDetected ? "sim" : "não"}
+                    Tracking: {trackingLabel(interaction)}
                   </span>
                 </div>
                 <dl className="mini-dl">
+                  <div>
+                    <dt>Execução</dt>
+                    <dd>{executionLabel(interaction)}</dd>
+                  </div>
+                  <div>
+                    <dt>Status</dt>
+                    <dd>{interaction.interactionStatus ?? "—"}</dd>
+                  </div>
                   <div>
                     <dt>Qualidade</dt>
                     <dd>{interaction.quality}</dd>

@@ -12,12 +12,28 @@ export interface NetworkRequestEvidence {
   timestamp: string;
 }
 
+export type InteractionExecutionStatus =
+  | "executed"
+  | "not_executed"
+  | "skipped";
+export type InteractionStatus =
+  | "clicked"
+  | "blocked_by_overlay"
+  | "timeout"
+  | "navigation_changed"
+  | "tracking_detected"
+  | "no_tracking_detected"
+  | "skipped"
+  | "failed";
+
 export interface InteractionEvidence {
   action: "click";
   selector: string;
   elementText: string;
   elementTag: string;
   elementRole: string | null;
+  executionStatus: InteractionExecutionStatus;
+  interactionStatus: InteractionStatus;
   urlBefore: string;
   urlAfter: string;
   dataLayerEventsBefore: number;
@@ -25,7 +41,7 @@ export interface InteractionEvidence {
   newDataLayerEvents: string[];
   trackingRequestsAfterClick: string[];
   trackingDetected: boolean;
-  quality: "high" | "medium" | "low";
+  quality: "high" | "medium" | "low" | "unknown";
   issues: string[];
 }
 
@@ -33,7 +49,15 @@ export interface InteractionSummaryEvidence {
   enabled: boolean;
   totalElementsFound: number;
   totalElementsTested: number;
+  executedClicks: number;
+  notExecutedClicks: number;
+  blockedByOverlay: number;
+  timeouts: number;
+  navigationChanges: number;
   interactionsWithTracking: number;
+  executedWithoutTracking: number;
+  notExecutedWithoutValidation: number;
+  /** @deprecated use executedWithoutTracking */
   interactionsWithoutTracking: number;
   eventsDetected: string[];
   quality: "high" | "medium" | "low" | "unknown";
@@ -227,27 +251,52 @@ export class PlaywrightService {
       const beforeRequestCount = requests.length;
       const urlBefore = page.url();
       const issues: string[] = [];
+      let executionStatus: InteractionExecutionStatus = "executed";
+      let interactionStatus: InteractionStatus = "clicked";
+      let clickExecuted = false;
 
       try {
         await page.locator(candidate.selector).first().click({ timeout: 3000 });
+        clickExecuted = true;
         await page.waitForTimeout(1000);
       } catch (error) {
-        issues.push(
-          `Clique não executado: ${error instanceof Error ? error.message : "erro desconhecido"}`,
-        );
+        const classification = this.classifyInteractionError(error);
+        executionStatus = "not_executed";
+        interactionStatus = classification.status;
+        issues.push(classification.issue);
       }
 
-      const afterDataLayer = await this.readDataLayer(page);
+      const afterDataLayer = clickExecuted
+        ? await this.readDataLayer(page)
+        : beforeDataLayer;
       const afterEvents = this.dataLayerEventNames(afterDataLayer);
-      const newDataLayerEvents = afterEvents.slice(beforeEvents.length);
-      const trackingRequestsAfterClick = this.trackingRequestUrls(
-        requests.slice(beforeRequestCount),
-      );
+      const newDataLayerEvents = clickExecuted
+        ? afterEvents.slice(beforeEvents.length)
+        : [];
+      const trackingRequestsAfterClick = clickExecuted
+        ? this.trackingRequestUrls(requests.slice(beforeRequestCount))
+        : [];
       const trackingDetected =
-        newDataLayerEvents.length > 0 || trackingRequestsAfterClick.length > 0;
+        clickExecuted &&
+        (newDataLayerEvents.length > 0 ||
+          trackingRequestsAfterClick.length > 0);
+      const urlAfter = page.url();
+      const navigationChanged = clickExecuted && urlAfter !== urlBefore;
 
-      if (!trackingDetected && issues.length === 0) {
-        issues.push("Clique importante não gerou sinal visível de tracking");
+      if (clickExecuted) {
+        if (navigationChanged) {
+          interactionStatus = "navigation_changed";
+          if (!trackingDetected) {
+            issues.push(
+              "Clique executado mudou a URL, mas nenhum sinal visível de tracking foi detectado",
+            );
+          }
+        } else if (trackingDetected) {
+          interactionStatus = "tracking_detected";
+        } else {
+          interactionStatus = "no_tracking_detected";
+          issues.push("Clique executado sem sinal visível de tracking");
+        }
       }
 
       interactions.push({
@@ -256,23 +305,26 @@ export class PlaywrightService {
         elementText: candidate.text,
         elementTag: candidate.tag,
         elementRole: candidate.role,
+        executionStatus,
+        interactionStatus,
         urlBefore,
-        urlAfter: page.url(),
+        urlAfter,
         dataLayerEventsBefore: beforeEvents.length,
         dataLayerEventsAfter: afterEvents.length,
         newDataLayerEvents,
         trackingRequestsAfterClick,
         trackingDetected,
-        quality:
-          newDataLayerEvents.length > 0 && trackingRequestsAfterClick.length > 0
-            ? "high"
-            : trackingDetected
-              ? "medium"
-              : "low",
+        quality: this.qualityForInteraction(
+          executionStatus,
+          trackingDetected,
+          navigationChanged,
+          newDataLayerEvents.length,
+          trackingRequestsAfterClick.length,
+        ),
         issues,
       });
 
-      if (page.url() !== urlBefore) {
+      if (navigationChanged) {
         await page
           .goBack({ waitUntil: "domcontentloaded", timeout: 3000 })
           .catch(() => undefined);
@@ -281,6 +333,60 @@ export class PlaywrightService {
     }
 
     return { totalElementsFound: candidates.length, interactions };
+  }
+
+  private classifyInteractionError(error: unknown): {
+    status: InteractionStatus;
+    issue: string;
+  } {
+    const message = error instanceof Error ? error.message : String(error);
+    const normalized = message.toLowerCase();
+
+    if (
+      normalized.includes("intercepts pointer events") ||
+      normalized.includes("subtree intercepts pointer events") ||
+      normalized.includes("element is not receiving pointer events") ||
+      normalized.includes("another element") ||
+      normalized.includes("covered by") ||
+      normalized.includes("overlay") ||
+      normalized.includes("modal") ||
+      normalized.includes("dialog")
+    ) {
+      return {
+        status: "blocked_by_overlay",
+        issue: "Clique não executado: modal ou overlay interceptou a interação",
+      };
+    }
+
+    if (
+      normalized.includes("timeout") ||
+      normalized.includes("timeout 3000ms exceeded") ||
+      normalized.includes("waiting for locator")
+    ) {
+      return {
+        status: "timeout",
+        issue:
+          "Clique não executado: tempo limite ao tentar interagir com o elemento",
+      };
+    }
+
+    return {
+      status: "failed",
+      issue: `Clique não executado: ${message}`,
+    };
+  }
+
+  private qualityForInteraction(
+    executionStatus: InteractionExecutionStatus,
+    trackingDetected: boolean,
+    navigationChanged: boolean,
+    newDataLayerEventCount: number,
+    trackingRequestCount: number,
+  ): "high" | "medium" | "low" | "unknown" {
+    if (executionStatus !== "executed") return "unknown";
+    if (newDataLayerEventCount > 0 && trackingRequestCount > 0) return "high";
+    if (trackingDetected) return navigationChanged ? "medium" : "medium";
+    return navigationChanged ? "medium" : "low";
   }
 
   private async findInteractionCandidates(
@@ -381,16 +487,46 @@ export class PlaywrightService {
         enabled: false,
         totalElementsFound: 0,
         totalElementsTested: 0,
+        executedClicks: 0,
+        notExecutedClicks: 0,
+        blockedByOverlay: 0,
+        timeouts: 0,
+        navigationChanges: 0,
         interactionsWithTracking: 0,
+        executedWithoutTracking: 0,
+        notExecutedWithoutValidation: 0,
         interactionsWithoutTracking: 0,
         eventsDetected: [],
         quality: "unknown",
       };
     }
 
-    const interactionsWithTracking = interactions.filter(
-      (interaction) => interaction.trackingDetected,
+    const executedClicks = interactions.filter(
+      (interaction) => interaction.executionStatus === "executed",
     ).length;
+    const notExecutedClicks = interactions.filter(
+      (interaction) => interaction.executionStatus === "not_executed",
+    ).length;
+    const blockedByOverlay = interactions.filter(
+      (interaction) => interaction.interactionStatus === "blocked_by_overlay",
+    ).length;
+    const timeouts = interactions.filter(
+      (interaction) => interaction.interactionStatus === "timeout",
+    ).length;
+    const navigationChanges = interactions.filter(
+      (interaction) => interaction.interactionStatus === "navigation_changed",
+    ).length;
+    const interactionsWithTracking = interactions.filter(
+      (interaction) =>
+        interaction.executionStatus === "executed" &&
+        interaction.trackingDetected,
+    ).length;
+    const executedWithoutTracking = interactions.filter(
+      (interaction) =>
+        interaction.executionStatus === "executed" &&
+        !interaction.trackingDetected,
+    ).length;
+    const notExecutedWithoutValidation = notExecutedClicks;
     const eventsDetected = [
       ...new Set(interactions.flatMap((item) => item.newDataLayerEvents)),
     ];
@@ -399,16 +535,23 @@ export class PlaywrightService {
       enabled: true,
       totalElementsFound,
       totalElementsTested: interactions.length,
+      executedClicks,
+      notExecutedClicks,
+      blockedByOverlay,
+      timeouts,
+      navigationChanges,
       interactionsWithTracking,
-      interactionsWithoutTracking:
-        interactions.length - interactionsWithTracking,
+      executedWithoutTracking,
+      notExecutedWithoutValidation,
+      interactionsWithoutTracking: executedWithoutTracking,
       eventsDetected,
       quality:
-        interactions.length === 0
+        interactions.length === 0 || executedClicks === 0
           ? "unknown"
-          : interactionsWithTracking === interactions.length
+          : interactionsWithTracking === executedClicks &&
+              notExecutedClicks === 0
             ? "high"
-            : interactionsWithTracking > 0
+            : interactionsWithTracking > 0 || notExecutedClicks > 0
               ? "medium"
               : "low",
     };

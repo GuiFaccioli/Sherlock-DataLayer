@@ -25,3 +25,5 @@
 - Persistidos `interactions` e `interactionSummary` no Prisma.
 - Frontend atualizado com seletor de modo de auditoria e painel de interações testadas.
 - Criado `docs/INTERACTION_AUDIT.md`.
+- Melhorada a classificação de interações para separar cliques executados, cliques bloqueados por overlay/modal, timeouts, navegação e cliques executados sem tracking.
+- Atualizado `interactionSummary` para separar `executedWithoutTracking` de `notExecutedWithoutValidation`.

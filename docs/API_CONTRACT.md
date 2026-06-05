@@ -66,8 +66,14 @@ Quando `mode=interaction`, a resposta também pode trazer:
     "enabled": true,
     "totalElementsFound": 12,
     "totalElementsTested": 5,
-    "interactionsWithTracking": 2,
-    "interactionsWithoutTracking": 3,
+    "executedClicks": 2,
+    "notExecutedClicks": 3,
+    "blockedByOverlay": 3,
+    "timeouts": 0,
+    "navigationChanges": 1,
+    "interactionsWithTracking": 1,
+    "executedWithoutTracking": 1,
+    "notExecutedWithoutValidation": 3,
     "eventsDetected": ["generate_lead", "click_cta"],
     "quality": "medium"
   },
@@ -77,6 +83,8 @@ Quando `mode=interaction`, a resposta também pode trazer:
       "elementText": "Fale com vendas",
       "elementTag": "button",
       "elementRole": null,
+      "executionStatus": "executed",
+      "interactionStatus": "tracking_detected",
       "urlBefore": "https://site.com",
       "urlAfter": "https://site.com",
       "newDataLayerEvents": ["generate_lead"],
@@ -84,10 +92,22 @@ Quando `mode=interaction`, a resposta também pode trazer:
       "trackingDetected": true,
       "quality": "high",
       "issues": []
+    },
+    {
+      "action": "click",
+      "elementText": "Lost password?",
+      "elementTag": "a",
+      "executionStatus": "not_executed",
+      "interactionStatus": "blocked_by_overlay",
+      "trackingDetected": false,
+      "quality": "unknown",
+      "issues": ["Clique não executado: modal ou overlay interceptou a interação"]
     }
   ]
 }
 ```
+
+`executionStatus=not_executed` significa falha de validação da auditoria, não ausência de tracking. Esses casos não entram como `executedWithoutTracking`.
 
 Exemplo resumido de `tools`:
 
