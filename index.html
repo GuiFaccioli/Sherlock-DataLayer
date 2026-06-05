@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Sherlock DataLayer — Observabilidade para dados</title>
+    <meta
+      name="description"
+      content="Sherlock DataLayer monitora pipelines, contratos e anomalias para equipes que precisam confiar nos dados em produção."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600;700&family=Space+Grotesk:wght@500;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <nav class="nav container" aria-label="Principal">
+        <a class="brand" href="#" aria-label="Sherlock DataLayer home">
+          <span class="brand-mark">S</span>
+          <span>Sherlock DataLayer</span>
+        </a>
+        <button class="menu-button" type="button" aria-label="Abrir menu">☰</button>
+        <div class="nav-links">
+          <a href="#features">Produto</a>
+          <a href="#workflow">Como funciona</a>
+          <a href="#pricing">Planos</a>
+          <a href="#contact">Contato</a>
+        </div>
+        <div class="nav-actions">
+          <a class="button button-ghost" href="#contact">Agendar demo</a>
+          <a class="button button-inverted" href="#contact">Começar</a>
+        </div>
+      </nav>
+    </header>
+
+    <main>
+      <section class="hero section-dark">
+        <div class="container hero-grid">
+          <div class="hero-copy">
+            <p class="eyebrow">Data contracts · Lineage · Alertas</p>
+            <h1>
+              Investigue seu
+              <span class="lime-chip">datalayer</span>
+              antes do incidente.
+            </h1>
+            <p class="hero-text">
+              Sherlock DataLayer encontra quebras de schema, atrasos de pipeline e drift de qualidade com a mesma velocidade de um console de debug — mas com o contexto que times de dados precisam para agir.
+            </p>
+            <div class="hero-actions">
+              <a class="button button-inverted button-glow" href="#contact">Solicitar acesso</a>
+              <a class="button button-ghost" href="#workflow">Ver investigação</a>
+            </div>
+          </div>
+
+          <div class="hero-visual" aria-label="Mockup de monitoramento do Sherlock DataLayer">
+            <span class="sticker sticker-astronaut" aria-hidden="true">🛸</span>
+            <span class="sticker sticker-monster" aria-hidden="true">👾</span>
+            <div class="product-window">
+              <div class="window-bar">
+                <span></span><span></span><span></span>
+                <strong>incident.trace</strong>
+              </div>
+              <div class="metric-row good">
+                <span>freshness.users_daily</span>
+                <strong>OK</strong>
+              </div>
+              <div class="metric-row warn">
+                <span>schema.orders.amount</span>
+                <strong>DRIFT</strong>
+              </div>
+              <pre><code>detect.contract("orders")
+  .onBreakingChange()
+  .route("#data-oncall")</code></pre>
+              <div class="trace-card">
+                <p>Root cause</p>
+                <strong>dbt model changed decimal → string</strong>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="features" class="section-dark features">
+        <div class="container">
+          <p class="eyebrow">Observabilidade com personalidade</p>
+          <h2>Um sistema escuro, direto e feito para quem vive em logs.</h2>
+          <div class="feature-grid">
+            <article class="feature-card">
+              <span class="feature-icon">✦</span>
+              <h3>Contratos monitorados</h3>
+              <p>Receba alerta quando schemas, tipos ou SLAs mudarem sem aprovação entre produtores e consumidores.</p>
+            </article>
+            <article class="feature-card violet-card">
+              <span class="feature-icon">⌁</span>
+              <h3>Lineage acionável</h3>
+              <p>Veja o impacto real da falha e priorize a correção pelo dashboard, relatório ou modelo afetado.</p>
+            </article>
+            <article class="feature-card">
+              <span class="feature-icon">⚡</span>
+              <h3>Alertas sem ruído</h3>
+              <p>Correlação automática agrupa sintomas em uma única investigação com dono, severidade e próximo passo.</p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section id="workflow" class="section-light workflow">
+        <div class="container split">
+          <div>
+            <p class="eyebrow dark">Fluxo de investigação</p>
+            <h2>Do alerta ao root cause em minutos.</h2>
+            <p>
+              A interface separa a camada transacional clara para comparação e decisão, enquanto os blocos de código preservam a energia midnight-violet do produto.
+            </p>
+          </div>
+          <div class="steps">
+            <article><span>01</span><strong>Detecte</strong><p>Anomalias de volume, freshness e schema são validadas continuamente.</p></article>
+            <article><span>02</span><strong>Contextualize</strong><p>Lineage mostra os consumidores afetados e o deploy que iniciou o drift.</p></article>
+            <article><span>03</span><strong>Resolva</strong><p>Crie issue, notifique owners e acompanhe o rollback em uma timeline única.</p></article>
+          </div>
+        </div>
+      </section>
+
+      <section id="pricing" class="section-light pricing">
+        <div class="container">
+          <p class="eyebrow dark">Planos</p>
+          <h2>Preço simples para equipes que escalam dados.</h2>
+          <div class="pricing-grid">
+            <article class="pricing-card">
+              <h3>Starter</h3>
+              <p class="price">R$0</p>
+              <p>Para validar contratos críticos.</p>
+              <a class="button button-primary" href="#contact">Começar</a>
+            </article>
+            <article class="pricing-card featured">
+              <p class="pill">Mais escolhido</p>
+              <h3>Business</h3>
+              <p class="price">Custom</p>
+              <p>Para times com múltiplos domínios e on-call de dados.</p>
+              <a class="button button-inverted" href="#contact">Agendar demo</a>
+            </article>
+            <article class="pricing-card">
+              <h3>Enterprise</h3>
+              <p class="price">SLA</p>
+              <p>Governança, SSO, RBAC e suporte dedicado.</p>
+              <a class="button button-primary" href="#contact">Falar com vendas</a>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section id="contact" class="section-dark contact">
+        <div class="container split">
+          <div>
+            <p class="eyebrow">Pronto para investigar?</p>
+            <h2>Traga seu stack. A gente encontra o mistério.</h2>
+          </div>
+          <form class="contact-form">
+            <label>Nome<input type="text" placeholder="Ada Lovelace" /></label>
+            <label>Email<input type="email" placeholder="ada@empresa.com" /></label>
+            <label>Stack<select><option>BigQuery + dbt</option><option>Snowflake + Airflow</option><option>Databricks</option></select></label>
+            <button class="button button-primary" type="submit">Enviar pedido</button>
+          </form>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer section-light">
+      <div class="container">
+        <svg class="squiggle" viewBox="0 0 600 24" role="img" aria-label="Divisor decorativo verde-lima"><path d="M2 12c35-20 60 20 95 0s60-20 95 0 60 20 95 0 60-20 95 0 60 20 95 0 60-20 95 0" /></svg>
+        <p>© 2026 Sherlock DataLayer. Design system inspirado no DESIGN.MD.</p>
+      </div>
+    </footer>
+  </body>
+</html>
