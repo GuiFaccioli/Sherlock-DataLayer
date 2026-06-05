@@ -4,10 +4,10 @@
 
 - Backend: Render, rodando NestJS.
 - Banco: PostgreSQL em produção via `DATABASE_URL`.
-- Frontend: Vercel no futuro. Atualmente não existe frontend no repositório.
+- Frontend: Vercel, usando o app em `frontend/`.
 - Branch de produção recomendada: `main`.
 
-O projeto está estruturado como backend isolado na raiz do repositório. Não há pastas `backend/` ou `frontend/` neste momento.
+O backend NestJS fica na raiz do repositório. O frontend Vite + React fica em `frontend/`.
 
 ## Scripts reais do projeto
 
@@ -165,23 +165,31 @@ Se o Chromium ainda falhar em runtime, verifique logs do Render e considere uma 
 
 ## Frontend na Vercel
 
-Ainda não existe frontend. Quando for criado:
+O frontend MVP está em `frontend/` e usa Vite + React.
 
-- Conectar a Vercel à branch `main`.
-- Não hardcodar localhost.
-- Usar `VITE_API_URL` para Vite ou `NEXT_PUBLIC_API_URL` para Next.js.
+Configuração recomendada na Vercel:
 
-Exemplo Vite:
+- Framework Preset: Vite
+- Root Directory: `frontend`
+- Build Command:
 
-```env
-VITE_API_URL="https://sherlock-datalayer-api.onrender.com"
+```bash
+npm run build
 ```
 
-Exemplo Next.js:
+- Output Directory:
+
+```txt
+dist
+```
+
+- Environment Variable:
 
 ```env
-NEXT_PUBLIC_API_URL="https://sherlock-datalayer-api.onrender.com"
+VITE_API_URL=https://sherlock-datalayer.onrender.com
 ```
+
+O frontend lê a API por `import.meta.env.VITE_API_URL`, sem hardcode espalhado. Ao publicar a URL da Vercel, atualize o backend no Render com `FRONTEND_URL=<url-da-vercel>` para CORS.
 
 ## Validação após deploy
 
@@ -267,7 +275,7 @@ Commit
 ↓
 Push para GitHub
 ↓
-Vercel atualiza frontend automaticamente, quando existir frontend
+Vercel atualiza frontend automaticamente a partir de `frontend/`
 ↓
 Render atualiza backend automaticamente
 ↓

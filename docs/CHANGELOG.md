@@ -15,3 +15,5 @@
 - Ajustado `playwright:install` para `playwright install chromium` no Render, evitando `--with-deps` porque ele tenta usar root/su para instalar dependências do sistema.
 - Configurado runtime do Playwright para Render com `PLAYWRIGHT_BROWSERS_PATH=0` e launch args `--no-sandbox` / `--disable-setuid-sandbox`, após produção criar auditorias mas falhar ao localizar Chromium no cache `/opt/render/.cache/ms-playwright`.
 - Normalizada a saída de evidências dos detectors para evitar `matchingScripts` com blocos grandes de HTML/script; criado `docs/DETECTION_RULES.md` e atualizado contrato da API.
+- Criado frontend MVP em `frontend/` com Vite, React e TypeScript para consumir o backend em produção e visualizar summary, tools, issues e events.
+- Criado `docs/FRONTEND.md` e atualizadas instruções de deploy do frontend na Vercel.

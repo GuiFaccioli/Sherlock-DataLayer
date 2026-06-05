@@ -12,8 +12,9 @@ DADO → EVENTO → COLETA → DESTINO → MÉTRICA → CONFIABILIDADE → DECIS
 
 ## Stack atual
 
-- Backend isolado na raiz do repositório
-- NestJS + TypeScript
+- Backend NestJS na raiz do repositório
+- Frontend Vite + React em `frontend/`
+- TypeScript
 - Playwright
 - Prisma + PostgreSQL
 - class-validator / class-transformer
@@ -21,4 +22,4 @@ DADO → EVENTO → COLETA → DESTINO → MÉTRICA → CONFIABILIDADE → DECIS
 
 ## Frontend
 
-Ainda não existe frontend no projeto. Deploy futuro previsto na Vercel.
+Existe um frontend MVP em `frontend/` para auditar uma URL contra o backend em produção e exibir summary, ferramentas, issues e eventos. Deploy previsto na Vercel.

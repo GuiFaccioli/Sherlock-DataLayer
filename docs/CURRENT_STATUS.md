@@ -4,11 +4,11 @@
 
 - Projeto é backend isolado na raiz; não é monorepo.
 - Não existe pasta `backend`.
-- Não existe pasta `frontend`.
+- Existe frontend MVP em `frontend/` com Vite + React + TypeScript.
 - Existe `package.json` na raiz.
 - Existe NestJS em `src/`.
 - Existe Prisma em `prisma/`.
-- Não existe Vite, React ou Next.js atualmente.
+- Frontend usa Vite + React, sem biblioteca pesada de UI.
 - Backend preparado para deploy no Render com porta dinâmica via `PORT`.
 - CORS configurado via `FRONTEND_URL`.
 - Endpoint `GET /health` criado.
@@ -25,6 +25,7 @@
 - `POST /audits` cria auditoria e salva issue no banco, mas Playwright precisou de ajuste de runtime porque o Chromium instalado no cache `/opt/render/.cache/ms-playwright` não estava disponível ao executar a auditoria.
 - Runtime do Playwright ajustado com `PLAYWRIGHT_BROWSERS_PATH=0` e Chromium launch args `--no-sandbox` / `--disable-setuid-sandbox`.
 - Detectores agora salvam evidências normalizadas/resumidas em `tools[].evidence` (`identifier`, `matchedPattern`, `source`, `evidencePreview` até 300 caracteres), evitando blocos grandes de HTML/script na resposta da API.
+- Frontend MVP consome `https://sherlock-datalayer.onrender.com` via `VITE_API_URL` e exibe formulário de auditoria, summary, tools, issues e events.
 
 ## Scripts relevantes
 
@@ -35,6 +36,7 @@
 - `npm run prisma:migrate:deploy` (`npx --no-install prisma migrate deploy`)
 - `npm run playwright:install` (`playwright install chromium`)
 - `npm run render:build` (`prisma:generate` + `playwright:install` + `build`)
+- `cd frontend && npm run build`
 
 ## Validações recentes
 
@@ -42,6 +44,8 @@
 - `npm run prisma:generate`
 - `npm run lint`
 - `npm run build`
+- `cd frontend && npm install`
+- `cd frontend && npm run build`
 
 ## Limitação conhecida
 

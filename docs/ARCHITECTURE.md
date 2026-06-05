@@ -2,7 +2,7 @@
 
 ## Estrutura
 
-Backend isolado na raiz do repositório.
+Backend NestJS na raiz do repositório e frontend Vite + React em `frontend/`.
 
 ```txt
 src/
@@ -15,6 +15,16 @@ src/
 ├── app.module.ts
 ├── health.controller.ts
 └── main.ts
+
+frontend/
+├── src/
+│   ├── api/         # cliente HTTP para /audits
+│   ├── components/  # componentes simples do MVP
+│   ├── styles/      # CSS global
+│   ├── types/       # tipos da API de auditoria
+│   ├── App.tsx
+│   └── main.tsx
+└── vite.config.ts
 ```
 
 ## Fluxo de auditoria
