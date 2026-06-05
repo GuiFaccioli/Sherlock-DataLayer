@@ -10,9 +10,9 @@
     "start:prod": "node dist/main.js",
     "lint": "tsc --noEmit",
     "format": "prettier --write \"src/**/*.ts\"",
-    "prisma:generate": "npx prisma generate",
-    "prisma:migrate": "npx prisma migrate dev",
-    "prisma:migrate:deploy": "npx prisma migrate deploy",
+    "prisma:generate": "npx --no-install prisma generate",
+    "prisma:migrate": "npx --no-install prisma migrate dev",
+    "prisma:migrate:deploy": "npx --no-install prisma migrate deploy",
     "playwright:install": "playwright install --with-deps chromium",
     "render:build": "npm run prisma:generate && npm run playwright:install && npm run build"
   },
@@ -26,7 +26,8 @@
     "class-validator": "latest",
     "playwright": "latest",
     "reflect-metadata": "latest",
-    "rxjs": "latest"
+    "rxjs": "latest",
+    "prisma": "6.19.3"
   },
   "devDependencies": {
     "@nestjs/cli": "latest",
@@ -36,7 +37,6 @@
     "@types/node": "latest",
     "eslint": "latest",
     "prettier": "latest",
-    "prisma": "6.19.3",
     "source-map-support": "latest",
     "ts-loader": "latest",
     "ts-node": "latest",

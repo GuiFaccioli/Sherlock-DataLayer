@@ -14,9 +14,9 @@
 - Endpoint `GET /health` criado.
 - Documentação de deploy e checklist de produção criada.
 - `docs/DEPLOYMENT.md` revisado com passo a passo real para Render + PostgreSQL usando os scripts atuais.
-- Scripts Prisma usam `npx prisma ...` para evitar falha `prisma: not found` no Render.
-- Render deve configurar `NPM_CONFIG_PRODUCTION=false` para instalar dependências de build como `prisma`, `@nestjs/cli` e `typescript`.
-- Prisma fixado em major 6 (`prisma@6.19.3` e `@prisma/client@6.19.3`) porque o schema atual usa `datasource db` com `url = env("DATABASE_URL")`, formato clássico incompatível com Prisma 7.
+- Scripts Prisma usam `npx --no-install prisma ...` para forçar o CLI local e impedir download automático do Prisma 7 pelo `npx` no Render.
+- Render deve configurar `NPM_CONFIG_PRODUCTION=false` para instalar dependências de build como `@nestjs/cli` e `typescript`.
+- Prisma fixado em major 6 (`prisma@6.19.3` e `@prisma/client@6.19.3`) em `dependencies` porque o schema atual usa `datasource db` com `url = env("DATABASE_URL")`, formato clássico incompatível com Prisma 7.
 - Node travado em LTS 22 via `.nvmrc` e `package.json#engines` (`>=22 <23`) para reduzir risco no Render.
 
 ## Scripts relevantes
@@ -24,8 +24,8 @@
 - `npm run build`
 - `npm run start:prod`
 - `npm run lint`
-- `npm run prisma:generate` (`npx prisma generate`)
-- `npm run prisma:migrate:deploy` (`npx prisma migrate deploy`)
+- `npm run prisma:generate` (`npx --no-install prisma generate`)
+- `npm run prisma:migrate:deploy` (`npx --no-install prisma migrate deploy`)
 - `npm run playwright:install`
 - `npm run render:build` (`prisma:generate` + `playwright:install` + `build`)
 

@@ -15,8 +15,8 @@ O projeto está estruturado como backend isolado na raiz do repositório. Não h
 {
   "build": "nest build",
   "start:prod": "node dist/main.js",
-  "prisma:generate": "npx prisma generate",
-  "prisma:migrate:deploy": "npx prisma migrate deploy",
+  "prisma:generate": "npx --no-install prisma generate",
+  "prisma:migrate:deploy": "npx --no-install prisma migrate deploy",
   "playwright:install": "playwright install --with-deps chromium",
   "render:build": "npm run prisma:generate && npm run playwright:install && npm run build"
 }
@@ -70,7 +70,7 @@ PLAYWRIGHT_TIMEOUT_MS=15000
 
 O projeto trava Node em LTS 22 para reduzir risco de incompatibilidade entre NestJS, Prisma 6 e Playwright. Se o Render tentar usar Node 24 por padrão, confirme que ele está lendo `.nvmrc` ou configure a versão de Node para 22 nas opções do serviço.
 
-`NPM_CONFIG_PRODUCTION=false` garante que dependências de desenvolvimento usadas durante o build, como `prisma`, `@nestjs/cli` e `typescript`, sejam instaladas no Render. Sem isso, o deploy pode falhar com `sh: 1: prisma: not found` ou erro equivalente durante `npm run render:build`.
+`NPM_CONFIG_PRODUCTION=false` garante que dependências de desenvolvimento usadas durante o build, como `@nestjs/cli` e `typescript`, sejam instaladas no Render. O Prisma CLI também foi colocado em `dependencies` para ficar disponível mesmo quando o ambiente omitir devDependencies.
 
 Enquanto não houver frontend, `FRONTEND_URL` pode ficar como uma URL placeholder ou a origem que será usada futuramente. Para desenvolvimento local, use `http://localhost:5173`.
 
@@ -82,7 +82,7 @@ FRONTEND_URL="https://app.vercel.app,http://localhost:5173"
 
 ## Prisma e PostgreSQL
 
-Este MVP usa Prisma 6 (`prisma@6.19.3` e `@prisma/client@6.19.3`). As duas dependências devem permanecer na mesma major version.
+Este MVP usa Prisma 6 (`prisma@6.19.3` e `@prisma/client@6.19.3`). As duas dependências devem permanecer na mesma major version e estão em `dependencies`, não apenas em `devDependencies`, para garantir disponibilidade durante o build do Render.
 
 Motivo: o schema atual usa o formato clássico com `url = env("DATABASE_URL")` dentro de `datasource db`. O Prisma 7 mudou essa configuração e falha com `P1012` / `The datasource property url is no longer supported in schema files`. Para este MVP, não migramos para a configuração nova do Prisma 7.
 
@@ -119,9 +119,9 @@ Alternativa: criar um job/manual command no Render apenas para migrations com:
 npm install && npm run prisma:generate && npm run prisma:migrate:deploy
 ```
 
-Os scripts usam `npx prisma ...` para chamar o Prisma CLI local do projeto de forma explícita. O pacote `prisma` está em `devDependencies`, então mantenha `NPM_CONFIG_PRODUCTION=false` no Render para que ele esteja disponível durante build e migrations.
+Os scripts usam `npx --no-install prisma ...` para chamar somente o Prisma CLI local do projeto. Isso impede que o `npx` baixe automaticamente Prisma 7 durante o build.
 
-Se o Render mostrar `Prisma CLI Version: 7.x` durante `npx prisma generate`, isso indica que o CLI local não foi instalado/selecionado corretamente e o `npx` buscou uma versão externa. Verifique se `NPM_CONFIG_PRODUCTION=false` está configurado e se o `package-lock.json` foi atualizado com Prisma 6.
+Se o Render mostrar `Prisma CLI Version: 7.x` durante generate ou migrate, isso indica que o CLI local não foi instalado/selecionado corretamente. Verifique se `prisma@6.19.3` está em `dependencies`, se o `package-lock.json` foi atualizado, se o deploy está usando o commit mais recente e se o build command começa com `npm install`.
 
 Evite acoplar migrations automáticas ao start do servidor para não repetir migrations a cada boot.
 
