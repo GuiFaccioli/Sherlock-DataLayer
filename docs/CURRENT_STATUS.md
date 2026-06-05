@@ -26,6 +26,8 @@
 - Runtime do Playwright ajustado com `PLAYWRIGHT_BROWSERS_PATH=0` e Chromium launch args `--no-sandbox` / `--disable-setuid-sandbox`.
 - Detectores agora salvam evidências normalizadas/resumidas em `tools[].evidence` (`identifier`, `matchedPattern`, `source`, `evidencePreview` até 300 caracteres), evitando blocos grandes de HTML/script na resposta da API.
 - Frontend MVP consome `https://sherlock-datalayer.onrender.com` via `VITE_API_URL` e exibe formulário de auditoria, summary, tools, issues e events.
+- Build do backend exclui `frontend/` no `tsconfig.json`; Render compila apenas backend e Vercel compila apenas frontend.
+- Render deve usar Build Filters / Ignore Paths para `frontend/**` e `docs/**`.
 
 ## Scripts relevantes
 

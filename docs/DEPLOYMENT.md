@@ -7,7 +7,7 @@
 - Frontend: Vercel, usando o app em `frontend/`.
 - Branch de produção recomendada: `main`.
 
-O backend NestJS fica na raiz do repositório. O frontend Vite + React fica em `frontend/`.
+O backend NestJS fica na raiz do repositório. O frontend Vite + React fica em `frontend/`. Os builds são separados: Render compila apenas o backend e Vercel compila apenas o frontend.
 
 ## Scripts reais do projeto
 
@@ -47,6 +47,11 @@ npm run start:prod
 ```txt
 /health
 ```
+
+- Build Filters recomendados no Render:
+  - Ignore Paths: `frontend/**`, `docs/**`
+
+O backend deve ignorar `frontend/` no build TypeScript. A raiz usa `tsconfig.json` com `exclude` incluindo `frontend`, porque os arquivos React/TSX são compilados separadamente pela Vercel.
 
 O script `render:build` executa:
 
@@ -233,6 +238,7 @@ Verifique logs do Render para:
    - Build command: `npm install && npm run render:build`
    - Start command: `npm run start:prod`
    - Health check path: `/health`
+   - Build Filters / Ignore Paths: `frontend/**`, `docs/**`
 5. Configure variáveis:
    - `DATABASE_URL` com a URL do PostgreSQL de produção
    - `NODE_ENV=production`

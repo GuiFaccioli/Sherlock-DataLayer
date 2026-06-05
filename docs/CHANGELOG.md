@@ -17,3 +17,4 @@
 - Normalizada a saída de evidências dos detectors para evitar `matchingScripts` com blocos grandes de HTML/script; criado `docs/DETECTION_RULES.md` e atualizado contrato da API.
 - Criado frontend MVP em `frontend/` com Vite, React e TypeScript para consumir o backend em produção e visualizar summary, tools, issues e events.
 - Criado `docs/FRONTEND.md` e atualizadas instruções de deploy do frontend na Vercel.
+- Corrigido build do backend para excluir `frontend/`, separando compilação NestJS no Render da compilação Vite/React na Vercel.
