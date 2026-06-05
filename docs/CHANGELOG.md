@@ -13,3 +13,4 @@
 - Node travado em LTS 22 com `.nvmrc` e `package.json#engines` para reduzir risco de incompatibilidade no Render.
 - Movido `prisma@6.19.3` para `dependencies` e alterados scripts para `npx --no-install prisma ...`, impedindo que o Render baixe/use Prisma 7 durante o build.
 - Ajustado `playwright:install` para `playwright install chromium` no Render, evitando `--with-deps` porque ele tenta usar root/su para instalar dependências do sistema.
+- Configurado runtime do Playwright para Render com `PLAYWRIGHT_BROWSERS_PATH=0` e launch args `--no-sandbox` / `--disable-setuid-sandbox`, após produção criar auditorias mas falhar ao localizar Chromium no cache `/opt/render/.cache/ms-playwright`.

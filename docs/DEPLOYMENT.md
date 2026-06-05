@@ -64,6 +64,7 @@ NODE_ENV=production
 NPM_CONFIG_PRODUCTION=false
 FRONTEND_URL="https://seu-frontend.vercel.app"
 PLAYWRIGHT_TIMEOUT_MS=15000
+PLAYWRIGHT_BROWSERS_PATH=0
 ```
 
 `PORT` é fornecida dinamicamente pelo Render. O código usa `process.env.PORT` e fallback local para `3001`, portanto não é necessário definir `PORT` manualmente no Render.
@@ -141,6 +142,20 @@ Esse comando está encapsulado em:
 npm run playwright:install
 ```
 
+Configure também no Render:
+
+```env
+PLAYWRIGHT_BROWSERS_PATH=0
+```
+
+Essa variável faz o Playwright instalar/usar os browsers dentro do diretório do projeto (`node_modules`) em vez do cache global (`/opt/render/.cache/ms-playwright`). Isso reduz o risco de o Chromium instalado no build não estar disponível no runtime, erro típico: `browserType.launch: Executable doesn't exist at /opt/render/.cache/ms-playwright/...`.
+
+O serviço também inicia Chromium com:
+
+```ts
+args: ["--no-sandbox", "--disable-setuid-sandbox"]
+```
+
 Se o Chromium ainda falhar em runtime, verifique logs do Render e considere uma das alternativas:
 
 - usar Dockerfile customizado futuramente com dependências do sistema instaladas na imagem;
@@ -216,6 +231,7 @@ Verifique logs do Render para:
    - `NPM_CONFIG_PRODUCTION=false`
    - `FRONTEND_URL=https://seu-frontend.vercel.app` ou origem futura
    - `PLAYWRIGHT_TIMEOUT_MS=15000`
+   - `PLAYWRIGHT_BROWSERS_PATH=0`
 6. Faça o primeiro deploy.
 7. Rode migrations de produção no Shell/Job do Render:
 

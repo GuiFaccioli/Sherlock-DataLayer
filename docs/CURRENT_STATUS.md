@@ -19,6 +19,11 @@
 - Prisma fixado em major 6 (`prisma@6.19.3` e `@prisma/client@6.19.3`) em `dependencies` porque o schema atual usa `datasource db` com `url = env("DATABASE_URL")`, formato clássico incompatível com Prisma 7.
 - Node travado em LTS 22 via `.nvmrc` e `package.json#engines` (`>=22 <23`) para reduzir risco no Render.
 - Script `playwright:install` ajustado para `playwright install chromium`; no Render não usamos `--with-deps` porque ele tenta instalar dependências do sistema com root/su e pode falhar.
+- Backend já subiu em produção no Render.
+- Banco PostgreSQL de produção conectado.
+- Migrations de produção aplicadas.
+- `POST /audits` cria auditoria e salva issue no banco, mas Playwright precisou de ajuste de runtime porque o Chromium instalado no cache `/opt/render/.cache/ms-playwright` não estava disponível ao executar a auditoria.
+- Runtime do Playwright ajustado com `PLAYWRIGHT_BROWSERS_PATH=0` e Chromium launch args `--no-sandbox` / `--disable-setuid-sandbox`.
 
 ## Scripts relevantes
 
@@ -33,7 +38,7 @@
 ## Validações recentes
 
 - `npm install`
-- `npx prisma generate`
+- `npm run prisma:generate`
 - `npm run lint`
 - `npm run build`
 
