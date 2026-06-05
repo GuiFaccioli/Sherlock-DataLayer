@@ -14,12 +14,16 @@ async function bootstrap() {
   );
 
   const config = app.get(ConfigService);
-  const frontendUrl =
-    config.get<string>("FRONTEND_URL") ?? "http://localhost:5173";
-  const allowedOrigins = frontendUrl.split(",").map((origin) => origin.trim());
+  const frontendUrl = process.env.FRONTEND_URL ?? config.get<string>("FRONTEND_URL");
+  const allowedOrigins = [
+    "http://localhost:5173",
+    ...(frontendUrl ? frontendUrl.split(",").map((origin) => origin.trim()) : []),
+  ];
 
   app.enableCors({
     origin: allowedOrigins,
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
   });
 
   const port = process.env.PORT || config.get<number>("PORT") || 3001;
