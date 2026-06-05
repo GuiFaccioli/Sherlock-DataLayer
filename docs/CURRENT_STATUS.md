@@ -14,14 +14,16 @@
 - Endpoint `GET /health` criado.
 - Documentação de deploy e checklist de produção criada.
 - `docs/DEPLOYMENT.md` revisado com passo a passo real para Render + PostgreSQL usando os scripts atuais.
+- Scripts Prisma usam `npx prisma ...` para evitar falha `prisma: not found` no Render.
+- Render deve configurar `NPM_CONFIG_PRODUCTION=false` para instalar dependências de build como `prisma`, `@nestjs/cli` e `typescript`.
 
 ## Scripts relevantes
 
 - `npm run build`
 - `npm run start:prod`
 - `npm run lint`
-- `npm run prisma:generate`
-- `npm run prisma:migrate:deploy`
+- `npm run prisma:generate` (`npx prisma generate`)
+- `npm run prisma:migrate:deploy` (`npx prisma migrate deploy`)
 - `npm run playwright:install`
 - `npm run render:build` (`prisma:generate` + `playwright:install` + `build`)
 

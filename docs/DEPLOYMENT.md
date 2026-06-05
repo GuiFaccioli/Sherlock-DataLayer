@@ -15,8 +15,8 @@ O projeto está estruturado como backend isolado na raiz do repositório. Não h
 {
   "build": "nest build",
   "start:prod": "node dist/main.js",
-  "prisma:generate": "prisma generate",
-  "prisma:migrate:deploy": "prisma migrate deploy",
+  "prisma:generate": "npx prisma generate",
+  "prisma:migrate:deploy": "npx prisma migrate deploy",
   "playwright:install": "playwright install --with-deps chromium",
   "render:build": "npm run prisma:generate && npm run playwright:install && npm run build"
 }
@@ -60,11 +60,14 @@ Configure no Render:
 ```env
 DATABASE_URL="postgresql://USER:PASSWORD@HOST:PORT/DATABASE?schema=public"
 NODE_ENV=production
+NPM_CONFIG_PRODUCTION=false
 FRONTEND_URL="https://seu-frontend.vercel.app"
 PLAYWRIGHT_TIMEOUT_MS=15000
 ```
 
 `PORT` é fornecida dinamicamente pelo Render. O código usa `process.env.PORT` e fallback local para `3001`, portanto não é necessário definir `PORT` manualmente no Render.
+
+`NPM_CONFIG_PRODUCTION=false` garante que dependências de desenvolvimento usadas durante o build, como `prisma`, `@nestjs/cli` e `typescript`, sejam instaladas no Render. Sem isso, o deploy pode falhar com `sh: 1: prisma: not found` ou erro equivalente durante `npm run render:build`.
 
 Enquanto não houver frontend, `FRONTEND_URL` pode ficar como uma URL placeholder ou a origem que será usada futuramente. Para desenvolvimento local, use `http://localhost:5173`.
 
@@ -108,6 +111,8 @@ Alternativa: criar um job/manual command no Render apenas para migrations com:
 ```bash
 npm install && npm run prisma:generate && npm run prisma:migrate:deploy
 ```
+
+Os scripts usam `npx prisma ...` para chamar o Prisma CLI local do projeto de forma explícita. O pacote `prisma` está em `devDependencies`, então mantenha `NPM_CONFIG_PRODUCTION=false` no Render para que ele esteja disponível durante build e migrations.
 
 Evite acoplar migrations automáticas ao start do servidor para não repetir migrations a cada boot.
 
@@ -195,6 +200,7 @@ Verifique logs do Render para:
 5. Configure variáveis:
    - `DATABASE_URL` com a URL do PostgreSQL de produção
    - `NODE_ENV=production`
+   - `NPM_CONFIG_PRODUCTION=false`
    - `FRONTEND_URL=https://seu-frontend.vercel.app` ou origem futura
    - `PLAYWRIGHT_TIMEOUT_MS=15000`
 6. Faça o primeiro deploy.
