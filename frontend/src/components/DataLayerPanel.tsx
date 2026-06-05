@@ -10,7 +10,7 @@ export function DataLayerPanel({ found, events }: DataLayerPanelProps) {
   const dataLayerEvents = events.filter((event) => event.source === "dataLayer");
 
   return (
-    <section className="panel list-panel">
+    <section className="panel list-panel" id="datalayer">
       <div className="section-title compact">
         <p className="eyebrow">3. dataLayer</p>
         <h2>Dado e evento</h2>

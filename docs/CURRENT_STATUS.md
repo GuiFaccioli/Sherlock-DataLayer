@@ -35,6 +35,7 @@
 - Interações agora distinguem `executionStatus` e `interactionStatus`, separando clique executado sem tracking de clique não executado por overlay, timeout ou falha.
 - `interactionSummary` separa `executedWithoutTracking` de `notExecutedWithoutValidation`, evitando transformar falha de auditoria em falha de tracking.
 - Frontend reorganizado por tópicos técnicos: resumo, ferramentas, dataLayer, eventos, requests/evidências, interações, problemas técnicos e JSON bruto colapsável.
+- Frontend agora possui painel lateral fixo com resumo da auditoria, evidências, métricas de interação e navegação por seções.
 - Build do backend exclui `frontend/` no `tsconfig.json`; Render compila apenas backend e Vercel compila apenas frontend.
 - Render deve usar Build Filters / Ignore Paths para `frontend/**` e `docs/**`.
 

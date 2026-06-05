@@ -14,7 +14,7 @@ export function TrackingSignals({ audit }: TrackingSignalsProps) {
   const signals = [...new Set([...toolEvidence, ...interactionRequests])];
 
   return (
-    <section className="panel list-panel">
+    <section className="panel list-panel" id="requests">
       <div className="section-title compact">
         <p className="eyebrow">5. Requests e evidências</p>
         <h2>Dado bruto capturado</h2>

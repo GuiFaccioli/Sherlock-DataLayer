@@ -17,7 +17,7 @@ export function InteractionsPanel({ audit }: InteractionsPanelProps) {
 
   return (
     <>
-      <section className="panel summary-panel">
+      <section className="panel summary-panel" id="interacoes">
         <div className="section-title compact">
           <p className="eyebrow">6. Interações testadas</p>
           <h2>Execução, validação e tracking</h2>

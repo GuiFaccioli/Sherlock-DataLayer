@@ -6,7 +6,7 @@ interface ToolsListProps {
 
 export function ToolsList({ tools }: ToolsListProps) {
   return (
-    <section className="panel list-panel">
+    <section className="panel list-panel" id="ferramentas">
       <div className="section-title compact">
         <p className="eyebrow">2. Ferramentas detectadas</p>
         <h2>Coleta e destino</h2>

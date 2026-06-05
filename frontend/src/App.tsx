@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { createAudit } from "./api/auditsApi";
 import { AuditForm } from "./components/AuditForm";
+import { AuditSidebar } from "./components/AuditSidebar";
 import { AuditStatusPanel } from "./components/AuditStatusPanel";
 import { DataLayerPanel } from "./components/DataLayerPanel";
 import { EventsList } from "./components/EventsList";
@@ -33,7 +34,9 @@ function App() {
   }
 
   return (
-    <main className="app-shell">
+    <div className="app-layout">
+      <AuditSidebar audit={audit} />
+      <main className="app-shell">
       <section className="hero-panel">
         <div>
           <p className="eyebrow">Client-side analytics audit</p>
@@ -74,7 +77,8 @@ function App() {
           <TechnicalJson audit={audit} />
         </div>
       )}
-    </main>
+      </main>
+    </div>
   );
 }
 

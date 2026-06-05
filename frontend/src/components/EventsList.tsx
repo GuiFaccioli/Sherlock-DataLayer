@@ -14,7 +14,7 @@ function sourceRequest(event: DetectedEvent): string {
 
 export function EventsList({ events }: EventsListProps) {
   return (
-    <section className="panel events-panel">
+    <section className="panel events-panel" id="eventos">
       <div className="section-title compact">
         <p className="eyebrow">4. Eventos detectados</p>
         <h2>Evento, coleta e destino</h2>

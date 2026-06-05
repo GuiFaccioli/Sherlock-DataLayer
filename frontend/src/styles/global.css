@@ -17,6 +17,7 @@
 }
 
 * { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
 body {
   margin: 0;
   min-width: 320px;
@@ -32,11 +33,61 @@ body {
 button, input { font: inherit; }
 button:focus-visible, input:focus-visible { outline: 3px solid var(--ring-focus); outline-offset: 3px; }
 
+.app-layout {
+  display: grid;
+  grid-template-columns: 300px minmax(0, 1fr);
+  gap: 28px;
+  width: min(100% - 32px, 1480px);
+  margin: 0 auto;
+  align-items: start;
+}
+
 .app-shell {
-  width: min(100% - 32px, 1160px);
+  width: min(100%, 1160px);
   margin: 0 auto;
   padding: 48px 0;
 }
+
+.audit-sidebar {
+  position: sticky;
+  top: 24px;
+  max-height: calc(100vh - 48px);
+  overflow-y: auto;
+  margin: 48px 0;
+  border: 1px solid var(--hairline-violet);
+  border-radius: 18px;
+  padding: 18px;
+  background: rgba(21, 15, 35, .78);
+}
+.sidebar-block { padding: 16px 0; border-bottom: 1px solid var(--hairline-violet); }
+.sidebar-block:first-child { padding-top: 0; }
+.sidebar-block:last-child { border-bottom: 0; padding-bottom: 0; }
+.sidebar-kicker {
+  margin: 0 0 18px;
+  color: var(--accent-lime);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: .2px;
+  text-transform: uppercase;
+}
+.sidebar-block h2 { margin-bottom: 12px; font-size: 15px; line-height: 1.2; }
+.sidebar-dl { display: grid; gap: 10px; margin: 0; }
+.sidebar-dl.compact { gap: 8px; }
+.sidebar-dl div { display: flex; justify-content: space-between; gap: 12px; }
+.sidebar-dl dt { flex: 0 0 auto; }
+.sidebar-dl dd { margin: 0; overflow-wrap: anywhere; text-align: right; font-size: 13px; }
+.sidebar-nav { display: grid; gap: 8px; }
+.sidebar-nav a {
+  display: block;
+  border: 1px solid var(--hairline-violet);
+  border-radius: 10px;
+  padding: 8px 10px;
+  color: var(--on-primary);
+  text-decoration: none;
+  background: rgba(255, 255, 255, .05);
+  font-size: 13px;
+}
+.sidebar-nav a:hover { background: rgba(255, 255, 255, .1); }
 
 .hero-panel {
   display: grid;
@@ -283,6 +334,11 @@ details summary { cursor: pointer; color: var(--accent-lime); font-weight: 600; 
 .evidence-table { min-width: 980px; }
 
 .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0, 0, 0, 0); }
+
+@media (max-width: 1080px) {
+  .app-layout { grid-template-columns: 1fr; }
+  .audit-sidebar { position: static; max-height: none; margin: 24px 0 0; }
+}
 
 @media (max-width: 860px) {
   .hero-panel, .two-column-grid, .metrics-grid, .summary-list, .summary-list.three-cols { grid-template-columns: 1fr; }
