@@ -1,10 +1,13 @@
 import { useState } from "react";
 import { createAudit } from "./api/auditsApi";
 import { AuditForm } from "./components/AuditForm";
+import { AuditStatusPanel } from "./components/AuditStatusPanel";
+import { DataLayerPanel } from "./components/DataLayerPanel";
 import { EventsList } from "./components/EventsList";
 import { IssuesList } from "./components/IssuesList";
 import { SummaryCards } from "./components/SummaryCards";
 import { ToolsList } from "./components/ToolsList";
+import { TrackingSignals } from "./components/TrackingSignals";
 import type { AuditResponse } from "./types/audit";
 
 function App() {
@@ -56,9 +59,17 @@ function App() {
       ) : (
         <div className="results-grid">
           <SummaryCards audit={audit} />
+          <AuditStatusPanel audit={audit} />
           <div className="two-column-grid">
             <ToolsList tools={audit.tools} />
             <IssuesList issues={audit.issues} />
+          </div>
+          <div className="two-column-grid">
+            <DataLayerPanel
+              found={Boolean(audit.summary?.dataLayerFound)}
+              events={audit.events}
+            />
+            <TrackingSignals audit={audit} />
           </div>
           <EventsList events={audit.events} />
         </div>

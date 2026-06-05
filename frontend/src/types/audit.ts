@@ -1,10 +1,26 @@
+export type AuditStatus = "completed" | "partial" | "blocked" | "timeout" | "failed" | string;
+export type CollectionQuality = "high" | "medium" | "low" | "unknown" | string;
+export type FailureReason =
+  | null
+  | "access_denied"
+  | "bot_protection"
+  | "timeout"
+  | "navigation_error"
+  | "ssl_error"
+  | "unknown_error"
+  | string;
+
 export interface AuditSummary {
   clientSideTrackingFound: boolean;
   dataLayerFound: boolean;
   toolsDetected: number;
   eventsDetected: number;
   issuesFound: number;
-  confidence: "low" | "medium" | "high" | string;
+  confidence: "low" | "medium" | "high" | "unknown" | string;
+  auditStatus?: AuditStatus;
+  collectionQuality?: CollectionQuality;
+  failureReason?: FailureReason;
+  interpretation?: string;
   note: string;
   [key: string]: unknown;
 }
@@ -54,6 +70,9 @@ export interface AuditResponse {
   url: string;
   finalUrl: string;
   status: string;
+  auditStatus?: AuditStatus;
+  collectionQuality?: CollectionQuality | null;
+  failureReason?: FailureReason;
   pageTitle: string | null;
   summary: AuditSummary | null;
   tools: DetectedTool[];

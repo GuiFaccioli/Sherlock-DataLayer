@@ -10,8 +10,11 @@ datasource db {
 model Audit {
   id         String          @id @default(cuid())
   url        String
-  status     String
-  startedAt  DateTime        @default(now())
+  status            String
+  auditStatus       String?
+  collectionQuality String?
+  failureReason     String?
+  startedAt         DateTime        @default(now())
   finishedAt DateTime?
   rawData    Json?
   summary    Json?

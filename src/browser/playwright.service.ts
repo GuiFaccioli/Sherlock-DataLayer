@@ -13,6 +13,9 @@ export interface NetworkRequestEvidence {
 export interface BrowserAuditEvidence {
   pageTitle: string;
   finalUrl: string;
+  httpStatus: number | null;
+  networkIdleReached: boolean;
+  bodyTextPreview: string;
   requests: NetworkRequestEvidence[];
   scripts: string[];
   dataLayer: unknown[] | null;
@@ -50,14 +53,21 @@ export class PlaywrightService {
         });
       });
 
-      await page.goto(url, { waitUntil: "domcontentloaded", timeout });
-      await page
+      const response = await page.goto(url, {
+        waitUntil: "domcontentloaded",
+        timeout,
+      });
+      const networkIdleReached = await page
         .waitForLoadState("networkidle", { timeout: Math.min(timeout, 8000) })
-        .catch(() => undefined);
+        .then(() => true)
+        .catch(() => false);
 
       return {
         pageTitle: await page.title().catch(() => ""),
         finalUrl: page.url(),
+        httpStatus: response?.status() ?? null,
+        networkIdleReached,
+        bodyTextPreview: await this.readBodyTextPreview(page),
         requests,
         scripts: await this.readScripts(page),
         dataLayer: await this.readDataLayer(page),
@@ -65,6 +75,12 @@ export class PlaywrightService {
     } finally {
       await browser?.close().catch(() => undefined);
     }
+  }
+
+  private async readBodyTextPreview(page: Page): Promise<string> {
+    return page
+      .evaluate(() => document.body?.innerText?.slice(0, 2000) ?? "")
+      .catch(() => "");
   }
 
   private async readScripts(page: Page): Promise<string[]> {

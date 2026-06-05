@@ -1,6 +1,12 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
 import { Prisma } from "@prisma/client";
 import { IssueAnalyzerService } from "../analyzers/issue-analyzer.service";
+import {
+  AuditQualityClassification,
+  buildInterpretation,
+  classifyAuditError,
+  classifySuccessfulAudit,
+} from "./audit-quality";
 import { PlaywrightService } from "../browser/playwright.service";
 import { DataLayerCollector } from "../collectors/datalayer.collector";
 import { NetworkCollector } from "../collectors/network.collector";
@@ -26,6 +32,7 @@ export class AuditsService {
 
     try {
       const browserEvidence = await this.playwright.inspectUrl(dto.url);
+      const quality = classifySuccessfulAudit(browserEvidence);
       const tools = this.trackingDetector.detectTools(browserEvidence);
       const dataLayerEvents = this.dataLayerCollector.collectEvents(
         browserEvidence.dataLayer,
@@ -38,12 +45,14 @@ export class AuditsService {
         tools,
         events,
         browserEvidence.dataLayer,
+        quality,
       );
       const summary = this.buildSummary(
         tools,
         events,
         issues,
         browserEvidence.dataLayer,
+        quality,
       );
 
       const transaction: Prisma.PrismaPromise<unknown>[] = [
@@ -96,7 +105,10 @@ export class AuditsService {
         this.prisma.audit.update({
           where: { id: audit.id },
           data: {
-            status: "completed",
+            status: quality.auditStatus,
+            auditStatus: quality.auditStatus,
+            collectionQuality: quality.collectionQuality,
+            failureReason: quality.failureReason,
             finishedAt: new Date(),
             rawData: browserEvidence as unknown as Prisma.InputJsonValue,
             summary: summary as Prisma.InputJsonValue,
@@ -110,13 +122,19 @@ export class AuditsService {
     } catch (error) {
       const errorMessage =
         error instanceof Error ? error.message : "Unknown audit error";
+      const quality = classifyAuditError(error);
+      const failureIssue = this.failureIssueFor(quality, errorMessage);
       const summary = {
         clientSideTrackingFound: false,
         dataLayerFound: false,
         toolsDetected: 0,
         eventsDetected: 0,
         issuesFound: 1,
-        confidence: "low",
+        confidence: "unknown",
+        auditStatus: quality.auditStatus,
+        collectionQuality: quality.collectionQuality,
+        failureReason: quality.failureReason,
+        interpretation: buildInterpretation(quality, []),
         note: "A auditoria valida evidências client-side. Não confirma chegada real nas plataformas sem acesso interno.",
         error: errorMessage,
       };
@@ -124,20 +142,21 @@ export class AuditsService {
       await this.prisma.issue.create({
         data: {
           auditId: audit.id,
-          severity: "high",
-          title: "Falha ao abrir ou auditar URL",
-          description:
-            "O Playwright não conseguiu concluir a navegação e coleta de evidências client-side.",
-          evidence: { error: errorMessage },
-          businessImpact:
-            "Sites fora do ar, lentos ou que bloqueiam automação impedem a validação client-side e exigem uma nova tentativa ou investigação manual.",
+          severity: failureIssue.severity,
+          title: failureIssue.title,
+          description: failureIssue.description,
+          evidence: failureIssue.evidence as Prisma.InputJsonValue,
+          businessImpact: failureIssue.businessImpact,
         },
       });
 
       await this.prisma.audit.update({
         where: { id: audit.id },
         data: {
-          status: "failed",
+          status: quality.auditStatus,
+          auditStatus: quality.auditStatus,
+          collectionQuality: quality.collectionQuality,
+          failureReason: quality.failureReason,
           finishedAt: new Date(),
           rawData: { error: errorMessage },
           summary,
@@ -156,6 +175,9 @@ export class AuditsService {
         id: true,
         url: true,
         status: true,
+        auditStatus: true,
+        collectionQuality: true,
+        failureReason: true,
         startedAt: true,
         finishedAt: true,
         summary: true,
@@ -179,6 +201,9 @@ export class AuditsService {
       url: audit.url,
       finalUrl: rawData?.finalUrl ?? audit.url,
       status: audit.status,
+      auditStatus: audit.auditStatus ?? audit.status,
+      collectionQuality: audit.collectionQuality ?? null,
+      failureReason: audit.failureReason ?? null,
       pageTitle: rawData?.pageTitle ?? null,
       summary: audit.summary,
       tools: audit.tools,
@@ -188,10 +213,11 @@ export class AuditsService {
   }
 
   private buildSummary(
-    tools: { found: boolean }[],
+    tools: { name: string; found: boolean }[],
     events: unknown[],
     issues: unknown[],
     dataLayer: unknown[] | null,
+    quality: AuditQualityClassification,
   ): Record<string, unknown> {
     const toolsDetected = tools.filter((tool) => tool.found).length;
     const issuesFound = issues.length;
@@ -201,7 +227,16 @@ export class AuditsService {
       toolsDetected,
       eventsDetected: events.length,
       issuesFound,
-      confidence: this.confidenceFor(toolsDetected, events.length, issuesFound),
+      confidence: this.confidenceFor(
+        toolsDetected,
+        events.length,
+        issuesFound,
+        quality,
+      ),
+      auditStatus: quality.auditStatus,
+      collectionQuality: quality.collectionQuality,
+      failureReason: quality.failureReason,
+      interpretation: buildInterpretation(quality, tools),
       note: "A auditoria valida evidências client-side. Não confirma chegada real nas plataformas sem acesso interno.",
     };
   }
@@ -210,10 +245,47 @@ export class AuditsService {
     toolsDetected: number,
     eventsDetected: number,
     issuesFound: number,
-  ): "low" | "medium" | "high" {
+    quality: AuditQualityClassification,
+  ): "low" | "medium" | "high" | "unknown" {
+    if (["blocked", "failed", "timeout"].includes(quality.auditStatus)) {
+      return quality.auditStatus === "blocked" ? "low" : "unknown";
+    }
+    if (quality.auditStatus === "partial") return "medium";
     if (toolsDetected >= 2 && eventsDetected > 0 && issuesFound <= 1)
       return "high";
     if (toolsDetected > 0 || eventsDetected > 0) return "medium";
     return "low";
+  }
+
+  private failureIssueFor(
+    quality: AuditQualityClassification,
+    errorMessage: string,
+  ): {
+    severity: "high";
+    title: string;
+    description: string;
+    evidence: Record<string, unknown>;
+    businessImpact: string;
+  } {
+    if (quality.auditStatus === "timeout") {
+      return {
+        severity: "high",
+        title: "Timeout ao carregar a página",
+        description: "A auditoria atingiu o tempo limite antes de concluir a coleta.",
+        evidence: { error: errorMessage, failureReason: quality.failureReason },
+        businessImpact:
+          "O resultado é inconclusivo e deve ser tratado como baixa confiabilidade.",
+      };
+    }
+
+    return {
+      severity: "high",
+      title: "Erro de navegação",
+      description:
+        "O Playwright não conseguiu concluir a navegação e coleta de evidências client-side.",
+      evidence: { error: errorMessage, failureReason: quality.failureReason },
+      businessImpact:
+        "Sites fora do ar, lentos, com erro de SSL ou que bloqueiam automação impedem a validação client-side e exigem uma nova tentativa ou investigação manual.",
+    };
   }
 }

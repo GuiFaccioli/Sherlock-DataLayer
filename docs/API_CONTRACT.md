@@ -23,7 +23,26 @@ Body:
 }
 ```
 
-Resposta: auditoria com `auditId`, `url`, `finalUrl`, `status`, `pageTitle`, `summary`, `tools`, `events` e `issues`.
+Resposta: auditoria com `auditId`, `url`, `finalUrl`, `status`, `auditStatus`, `collectionQuality`, `failureReason`, `pageTitle`, `summary`, `tools`, `events` e `issues`.
+
+Campos de qualidade:
+
+```json
+{
+  "auditStatus": "completed",
+  "collectionQuality": "high",
+  "failureReason": null,
+  "summary": {
+    "confidence": "high",
+    "auditStatus": "completed",
+    "collectionQuality": "high",
+    "failureReason": null,
+    "interpretation": "Auditoria concluída. O site possui sinais de tracking client-side..."
+  }
+}
+```
+
+Se `auditStatus` for `blocked`, `timeout` ou `failed`, não é seguro concluir ausência de tracking.
 
 Exemplo resumido de `tools`:
 

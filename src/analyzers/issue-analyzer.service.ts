@@ -1,4 +1,5 @@
 import { Injectable } from "@nestjs/common";
+import { AuditQualityClassification } from "../audits/audit-quality";
 import { DataLayerEventEvidence } from "../collectors/datalayer.collector";
 import { NetworkEventEvidence } from "../collectors/network.collector";
 import { ToolDetectionResult } from "../detectors/detector.types";
@@ -20,6 +21,7 @@ export class IssueAnalyzerService {
     tools: ToolDetectionResult[],
     events: AuditEventEvidence[],
     dataLayer: unknown[] | null,
+    quality: AuditQualityClassification,
   ): IssueEvidence[] {
     const issues: IssueEvidence[] = [];
     const toolFound = (name: string) =>
@@ -27,47 +29,53 @@ export class IssueAnalyzerService {
     const dataLayerEvents = events.filter(
       (event) => event.source === "dataLayer",
     );
+    const canEvaluateAbsence =
+      quality.auditStatus === "completed" || quality.auditStatus === "partial";
 
-    if (!toolFound("Google Tag Manager")) {
-      issues.push({
-        severity: "medium",
-        title: "GTM não detectado",
-        description:
-          "Nenhuma evidência client-side de Google Tag Manager foi encontrada nos scripts ou requests.",
-        businessImpact:
-          "Sem GTM detectado, mudanças de tags e pixels podem depender de deploys e ficar menos governáveis para marketing e analytics.",
-      });
-    }
+    issues.push(...this.qualityIssues(quality));
 
-    if (!toolFound("Google Analytics 4")) {
-      issues.push({
-        severity: "high",
-        title: "GA4 não detectado",
-        description:
-          "Nenhuma evidência client-side de GA4 foi encontrada em requests g/collect, scripts gtag ou IDs G-.",
-        businessImpact:
-          "Sem GA4 detectado, o site pode não estar coletando visualizações e eventos no Google Analytics 4. Isso reduz a capacidade de analisar origem de tráfego, comportamento e conversões.",
-      });
-    }
+    if (canEvaluateAbsence) {
+      if (!toolFound("Google Tag Manager")) {
+        issues.push({
+          severity: "medium",
+          title: "GTM não detectado",
+          description:
+            "Nenhuma evidência client-side de Google Tag Manager foi encontrada nos scripts ou requests.",
+          businessImpact:
+            "Sem GTM detectado, mudanças de tags e pixels podem depender de deploys e ficar menos governáveis para marketing e analytics.",
+        });
+      }
 
-    if (!Array.isArray(dataLayer)) {
-      issues.push({
-        severity: "medium",
-        title: "dataLayer não detectado",
-        description:
-          "window.dataLayer não existe ou não é um array acessível no client-side.",
-        businessImpact:
-          "Sem dataLayer, eventos de negócio podem não estar padronizados para GTM, GA4 e pixels, reduzindo rastreabilidade e consistência entre ferramentas.",
-      });
-    } else if (dataLayerEvents.length === 0) {
-      issues.push({
-        severity: "medium",
-        title: "dataLayer encontrado, mas sem eventos de negócio",
-        description:
-          "window.dataLayer existe, porém não foram encontrados objetos com a propriedade event.",
-        businessImpact:
-          "Um dataLayer sem eventos de negócio limita a capacidade de medir conversões, jornadas e métricas acionáveis além de pageviews.",
-      });
+      if (!toolFound("Google Analytics 4")) {
+        issues.push({
+          severity: "high",
+          title: "GA4 não detectado",
+          description:
+            "Nenhuma evidência client-side de GA4 foi encontrada em requests g/collect, scripts gtag ou IDs G-.",
+          businessImpact:
+            "Sem GA4 detectado, o site pode não estar coletando visualizações e eventos no Google Analytics 4. Isso reduz a capacidade de analisar origem de tráfego, comportamento e conversões.",
+        });
+      }
+
+      if (!Array.isArray(dataLayer)) {
+        issues.push({
+          severity: "medium",
+          title: "dataLayer não detectado",
+          description:
+            "window.dataLayer não existe ou não é um array acessível no client-side.",
+          businessImpact:
+            "Sem dataLayer, eventos de negócio podem não estar padronizados para GTM, GA4 e pixels, reduzindo rastreabilidade e consistência entre ferramentas.",
+        });
+      } else if (dataLayerEvents.length === 0) {
+        issues.push({
+          severity: "medium",
+          title: "dataLayer encontrado, mas sem eventos de negócio",
+          description:
+            "window.dataLayer existe, porém não foram encontrados objetos com a propriedade event.",
+          businessImpact:
+            "Um dataLayer sem eventos de negócio limita a capacidade de medir conversões, jornadas e métricas acionáveis além de pageviews.",
+        });
+      }
     }
 
     for (const event of events) {
@@ -121,6 +129,73 @@ export class IssueAnalyzerService {
     }
 
     return issues;
+  }
+
+  private qualityIssues(quality: AuditQualityClassification): IssueEvidence[] {
+    if (quality.auditStatus === "blocked") {
+      return [
+        {
+          severity: "high",
+          title: "Site bloqueou a auditoria automatizada",
+          description:
+            "A página retornou sinais de bloqueio, como Access Denied, Forbidden, proteção anti-bot ou request blocked.",
+          evidence: { failureReason: quality.failureReason },
+          businessImpact:
+            "Não dá para afirmar que o site não possui tracking. A auditoria não conseguiu validar a página com segurança.",
+        },
+        {
+          severity: "high",
+          title: "Auditoria incompleta: não foi possível validar tracking com segurança",
+          description:
+            "O conteúdo analisado pode ser uma página de bloqueio, e não a experiência real de um usuário.",
+          evidence: { auditStatus: quality.auditStatus },
+          businessImpact:
+            "Decisões sobre ausência de analytics não devem ser tomadas com base em uma auditoria bloqueada.",
+        },
+      ];
+    }
+
+    if (quality.auditStatus === "timeout") {
+      return [
+        {
+          severity: "high",
+          title: "Timeout ao carregar a página",
+          description: "A auditoria atingiu o tempo limite antes de concluir a coleta.",
+          evidence: { failureReason: quality.failureReason },
+          businessImpact:
+            "O resultado é inconclusivo e deve ser tratado como baixa confiabilidade.",
+        },
+      ];
+    }
+
+    if (quality.auditStatus === "failed") {
+      return [
+        {
+          severity: "high",
+          title: "Erro de navegação",
+          description: "A auditoria falhou antes de coletar evidências suficientes.",
+          evidence: { failureReason: quality.failureReason },
+          businessImpact:
+            "Não dá para afirmar se o site possui ou não tracking client-side sem uma nova tentativa ou investigação manual.",
+        },
+      ];
+    }
+
+    if (quality.auditStatus === "partial") {
+      return [
+        {
+          severity: "medium",
+          title: "Auditoria incompleta: não foi possível validar tracking com segurança",
+          description:
+            "A página carregou parcialmente ou não atingiu estado estável de rede durante a coleta.",
+          evidence: { auditStatus: quality.auditStatus },
+          businessImpact:
+            "Use o resultado como indício, não como conclusão definitiva sobre a qualidade do tracking.",
+        },
+      ];
+    }
+
+    return [];
   }
 
   private hasKey(parameters: Record<string, unknown>, key: string): boolean {

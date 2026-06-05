@@ -18,3 +18,6 @@
 - Criado frontend MVP em `frontend/` com Vite, React e TypeScript para consumir o backend em produção e visualizar summary, tools, issues e events.
 - Criado `docs/FRONTEND.md` e atualizadas instruções de deploy do frontend na Vercel.
 - Corrigido build do backend para excluir `frontend/`, separando compilação NestJS no Render da compilação Vite/React na Vercel.
+- Adicionada classificação de qualidade da auditoria (`auditStatus`, `collectionQuality`, `failureReason`) para diferenciar auditoria completa, parcial, bloqueio, timeout e falha.
+- Frontend atualizado para exibir status da auditoria, dataLayer, sinais de tracking, issues e interpretação do resultado.
+- Criado `docs/AUDIT_QUALITY.md`.
