@@ -13,11 +13,20 @@ export function InteractionsPanel({ audit }: InteractionsPanelProps) {
   const summary = audit.interactionSummary ?? audit.summary?.interactionSummary;
   const interactions = audit.interactions ?? [];
 
-  if (!summary?.enabled) return null;
+  if (!summary?.enabled) {
+    return (
+      <section className="panel summary-panel" id="interactions">
+        <div className="section-title compact">
+          <p className="eyebrow">6. Interações testadas</p>
+          <h2>Não executado neste modo de auditoria.</h2>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <>
-      <section className="panel summary-panel" id="interacoes">
+      <section className="panel summary-panel" id="interactions">
         <div className="section-title compact">
           <p className="eyebrow">6. Interações testadas</p>
           <h2>Execução, validação e tracking</h2>

@@ -30,3 +30,4 @@
 - Reorganizado frontend para exibir resultados por evidências técnicas: resumo, ferramentas, dataLayer, eventos, requests, interações, problemas e JSON bruto colapsável.
 - Reduzidos textos opinativos no frontend, substituindo interpretação por leitura técnica objetiva.
 - Adicionado painel lateral no frontend com resumo da auditoria e navegação para as seções técnicas.
+- Refinada sidebar para usar dados reais do JSON, com estado vazio/loading, ferramentas encontradas, métricas de interação e navegação via botões.

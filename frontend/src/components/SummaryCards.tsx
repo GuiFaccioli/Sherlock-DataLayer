@@ -16,7 +16,7 @@ export function SummaryCards({ audit }: SummaryCardsProps) {
         <span>Resultado da auditoria</span>
       </header>
 
-      <section className="panel summary-panel" id="resumo-tecnico">
+      <section className="panel summary-panel" id="summary">
         <div className="section-title compact">
           <p className="eyebrow">1. Resumo técnico</p>
           <h2>{audit.url}</h2>

@@ -35,7 +35,7 @@ function App() {
 
   return (
     <div className="app-layout">
-      <AuditSidebar audit={audit} />
+      <AuditSidebar audit={audit} isLoading={isLoading} />
       <main className="app-shell">
       <section className="hero-panel">
         <div>

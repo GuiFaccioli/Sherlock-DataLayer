@@ -20,7 +20,7 @@ function categoryFor(issue: Issue): string {
 
 export function IssuesList({ issues }: IssuesListProps) {
   return (
-    <section className="panel list-panel" id="problemas">
+    <section className="panel list-panel" id="issues">
       <div className="section-title compact">
         <p className="eyebrow">8. Problemas técnicos encontrados</p>
         <h2>Categoria, severidade e evidência</h2>

@@ -29,7 +29,7 @@ export function TechnicalJson({ audit }: TechnicalJsonProps) {
   }
 
   return (
-    <section className="panel technical-json-panel" id="json-tecnico">
+    <section className="panel technical-json-panel" id="technical-json">
       <div className="section-title compact section-title-with-action">
         <div>
           <p className="eyebrow">9. JSON técnico</p>
