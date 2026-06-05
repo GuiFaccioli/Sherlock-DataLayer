@@ -13,6 +13,7 @@
 - CORS configurado via `FRONTEND_URL`.
 - Endpoint `GET /health` criado.
 - Documentação de deploy e checklist de produção criada.
+- `docs/DEPLOYMENT.md` revisado com passo a passo real para Render + PostgreSQL usando os scripts atuais.
 
 ## Scripts relevantes
 
@@ -22,12 +23,13 @@
 - `npm run prisma:generate`
 - `npm run prisma:migrate:deploy`
 - `npm run playwright:install`
-- `npm run render:build`
+- `npm run render:build` (`prisma:generate` + `playwright:install` + `build`)
 
 ## Validações recentes
 
 - `npm install`
 - `npx prisma generate`
+- `npm run lint`
 - `npm run build`
 
 ## Limitação conhecida
