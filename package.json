@@ -13,7 +13,7 @@
     "prisma:generate": "npx --no-install prisma generate",
     "prisma:migrate": "npx --no-install prisma migrate dev",
     "prisma:migrate:deploy": "npx --no-install prisma migrate deploy",
-    "playwright:install": "playwright install --with-deps chromium",
+    "playwright:install": "playwright install chromium",
     "render:build": "npm run prisma:generate && npm run playwright:install && npm run build"
   },
   "dependencies": {

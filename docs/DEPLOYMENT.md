@@ -17,7 +17,7 @@ O projeto está estruturado como backend isolado na raiz do repositório. Não h
   "start:prod": "node dist/main.js",
   "prisma:generate": "npx --no-install prisma generate",
   "prisma:migrate:deploy": "npx --no-install prisma migrate deploy",
-  "playwright:install": "playwright install --with-deps chromium",
+  "playwright:install": "playwright install chromium",
   "render:build": "npm run prisma:generate && npm run playwright:install && npm run build"
 }
 ```
@@ -127,10 +127,12 @@ Evite acoplar migrations automáticas ao start do servidor para não repetir mig
 
 ## Playwright/Chromium
 
-Render pode precisar instalar browsers e dependências do sistema:
+No Render, não use `playwright install --with-deps chromium` no build padrão. O `--with-deps` tenta instalar dependências do sistema com elevação de permissão/root (`su`) e pode falhar em ambientes sem permissão administrativa.
+
+O projeto usa:
 
 ```bash
-npx playwright install --with-deps chromium
+playwright install chromium
 ```
 
 Esse comando está encapsulado em:
@@ -139,11 +141,12 @@ Esse comando está encapsulado em:
 npm run playwright:install
 ```
 
-Se o comando `--with-deps` falhar por limitação do ambiente, verifique logs do Render e considere uma das alternativas:
+Se o Chromium ainda falhar em runtime, verifique logs do Render e considere uma das alternativas:
 
-- usar ambiente Render que permita instalar dependências do sistema;
-- usar Dockerfile customizado futuramente;
-- remover `--with-deps` somente se as dependências do sistema já estiverem disponíveis.
+- usar Dockerfile customizado futuramente com dependências do sistema instaladas na imagem;
+- usar plano/ambiente Render com dependências compatíveis;
+- avaliar outro ambiente de deploy com suporte explícito a browsers headless;
+- ajustar Playwright/timeouts se a falha for de navegação ou bloqueio anti-bot, e não de instalação.
 
 ## Frontend na Vercel
 

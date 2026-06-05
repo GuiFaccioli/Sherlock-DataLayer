@@ -18,6 +18,7 @@
 - Render deve configurar `NPM_CONFIG_PRODUCTION=false` para instalar dependências de build como `@nestjs/cli` e `typescript`.
 - Prisma fixado em major 6 (`prisma@6.19.3` e `@prisma/client@6.19.3`) em `dependencies` porque o schema atual usa `datasource db` com `url = env("DATABASE_URL")`, formato clássico incompatível com Prisma 7.
 - Node travado em LTS 22 via `.nvmrc` e `package.json#engines` (`>=22 <23`) para reduzir risco no Render.
+- Script `playwright:install` ajustado para `playwright install chromium`; no Render não usamos `--with-deps` porque ele tenta instalar dependências do sistema com root/su e pode falhar.
 
 ## Scripts relevantes
 
@@ -26,7 +27,7 @@
 - `npm run lint`
 - `npm run prisma:generate` (`npx --no-install prisma generate`)
 - `npm run prisma:migrate:deploy` (`npx --no-install prisma migrate deploy`)
-- `npm run playwright:install`
+- `npm run playwright:install` (`playwright install chromium`)
 - `npm run render:build` (`prisma:generate` + `playwright:install` + `build`)
 
 ## Validações recentes
