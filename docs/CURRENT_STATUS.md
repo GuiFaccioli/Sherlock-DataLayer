@@ -16,6 +16,7 @@
 - `docs/DEPLOYMENT.md` revisado com passo a passo real para Render + PostgreSQL usando os scripts atuais.
 - Scripts Prisma usam `npx prisma ...` para evitar falha `prisma: not found` no Render.
 - Render deve configurar `NPM_CONFIG_PRODUCTION=false` para instalar dependências de build como `prisma`, `@nestjs/cli` e `typescript`.
+- Prisma fixado em major 6 (`prisma@6.19.3` e `@prisma/client@6.19.3`) porque o schema atual usa `datasource db` com `url = env("DATABASE_URL")`, formato clássico incompatível com Prisma 7.
 
 ## Scripts relevantes
 

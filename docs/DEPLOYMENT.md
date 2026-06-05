@@ -79,6 +79,10 @@ FRONTEND_URL="https://app.vercel.app,http://localhost:5173"
 
 ## Prisma e PostgreSQL
 
+Este MVP usa Prisma 6 (`prisma@6.19.3` e `@prisma/client@6.19.3`). As duas dependências devem permanecer na mesma major version.
+
+Motivo: o schema atual usa o formato clássico com `url = env("DATABASE_URL")` dentro de `datasource db`. O Prisma 7 mudou essa configuração e falha com `P1012` / `The datasource property url is no longer supported in schema files`. Para este MVP, não migramos para a configuração nova do Prisma 7.
+
 Local:
 
 ```bash
@@ -113,6 +117,8 @@ npm install && npm run prisma:generate && npm run prisma:migrate:deploy
 ```
 
 Os scripts usam `npx prisma ...` para chamar o Prisma CLI local do projeto de forma explícita. O pacote `prisma` está em `devDependencies`, então mantenha `NPM_CONFIG_PRODUCTION=false` no Render para que ele esteja disponível durante build e migrations.
+
+Se o Render mostrar `Prisma CLI Version: 7.x` durante `npx prisma generate`, isso indica que o CLI local não foi instalado/selecionado corretamente e o `npx` buscou uma versão externa. Verifique se `NPM_CONFIG_PRODUCTION=false` está configurado e se o `package-lock.json` foi atualizado com Prisma 6.
 
 Evite acoplar migrations automáticas ao start do servidor para não repetir migrations a cada boot.
 
