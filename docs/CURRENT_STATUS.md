@@ -17,6 +17,7 @@
 - Scripts Prisma usam `npx prisma ...` para evitar falha `prisma: not found` no Render.
 - Render deve configurar `NPM_CONFIG_PRODUCTION=false` para instalar dependências de build como `prisma`, `@nestjs/cli` e `typescript`.
 - Prisma fixado em major 6 (`prisma@6.19.3` e `@prisma/client@6.19.3`) porque o schema atual usa `datasource db` com `url = env("DATABASE_URL")`, formato clássico incompatível com Prisma 7.
+- Node travado em LTS 22 via `.nvmrc` e `package.json#engines` (`>=22 <23`) para reduzir risco no Render.
 
 ## Scripts relevantes
 

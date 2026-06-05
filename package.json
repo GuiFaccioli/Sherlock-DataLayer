@@ -42,5 +42,8 @@
     "ts-node": "latest",
     "tsconfig-paths": "latest",
     "typescript": "latest"
+  },
+  "engines": {
+    "node": ">=22 <23"
   }
 }

@@ -27,6 +27,7 @@ O projeto está estruturado como backend isolado na raiz do repositório. Não h
 Configuração recomendada do Web Service:
 
 - Runtime: Node.js
+- Node version: LTS 22 (`.nvmrc` contém `22` e `package.json` define `engines.node` como `>=22 <23`)
 - Root directory: vazio / raiz do repositório
 - Branch: `main`
 - Build command:
@@ -66,6 +67,8 @@ PLAYWRIGHT_TIMEOUT_MS=15000
 ```
 
 `PORT` é fornecida dinamicamente pelo Render. O código usa `process.env.PORT` e fallback local para `3001`, portanto não é necessário definir `PORT` manualmente no Render.
+
+O projeto trava Node em LTS 22 para reduzir risco de incompatibilidade entre NestJS, Prisma 6 e Playwright. Se o Render tentar usar Node 24 por padrão, confirme que ele está lendo `.nvmrc` ou configure a versão de Node para 22 nas opções do serviço.
 
 `NPM_CONFIG_PRODUCTION=false` garante que dependências de desenvolvimento usadas durante o build, como `prisma`, `@nestjs/cli` e `typescript`, sejam instaladas no Render. Sem isso, o deploy pode falhar com `sh: 1: prisma: not found` ou erro equivalente durante `npm run render:build`.
 
@@ -198,6 +201,7 @@ Verifique logs do Render para:
 3. No Render, crie um Web Service conectado ao GitHub/repositório `Sherlock-DataLayer`.
 4. Configure:
    - Runtime: Node.js
+   - Node version: 22 LTS
    - Branch: `main`
    - Root directory: raiz do repositório
    - Build command: `npm install && npm run render:build`
