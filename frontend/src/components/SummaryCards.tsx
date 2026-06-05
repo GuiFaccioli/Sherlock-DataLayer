@@ -1,65 +1,74 @@
 import type { AuditResponse } from "../types/audit";
+import { modeLabel, qualityLabel, yesNo } from "../utils/labels";
 
 interface SummaryCardsProps {
   audit: AuditResponse;
 }
 
-function booleanLabel(value: boolean | undefined) {
-  return value ? "Sim" : "Não";
-}
-
 export function SummaryCards({ audit }: SummaryCardsProps) {
   const summary = audit.summary;
+  const auditStatus = audit.auditStatus ?? summary?.auditStatus ?? audit.status;
+  const mode = summary?.mode;
 
   return (
     <>
-      <section className="metrics-grid" aria-label="Métricas da auditoria">
-        <article className="metric-card">
-          <span>Ferramentas</span>
-          <strong>{summary?.toolsDetected ?? audit.tools.length}</strong>
-          <small>detectadas</small>
-        </article>
-        <article className="metric-card">
-          <span>Eventos</span>
-          <strong>{summary?.eventsDetected ?? audit.events.length}</strong>
-          <small>detectados</small>
-        </article>
-        <article className="metric-card issue-metric">
-          <span>Issues</span>
-          <strong>{summary?.issuesFound ?? audit.issues.length}</strong>
-          <small>encontradas</small>
-        </article>
-      </section>
+      <header className="results-header">
+        <span>Resultado da auditoria</span>
+      </header>
 
       <section className="panel summary-panel">
-        <div className="section-title">
-          <p className="eyebrow">Resumo da auditoria</p>
-          <h2>{audit.pageTitle || "Página auditada"}</h2>
+        <div className="section-title compact">
+          <p className="eyebrow">1. Resumo técnico</p>
+          <h2>{audit.url}</h2>
         </div>
-        <dl className="summary-list">
+        <dl className="summary-list technical-summary">
           <div>
-            <dt>Status</dt>
-            <dd>{audit.status}</dd>
+            <dt>URL auditada</dt>
+            <dd className="breakable">{audit.url}</dd>
           </div>
           <div>
             <dt>URL final</dt>
             <dd className="breakable">{audit.finalUrl}</dd>
           </div>
           <div>
-            <dt>Confiança</dt>
-            <dd>{summary?.confidence ?? "n/a"}</dd>
+            <dt>Título da página</dt>
+            <dd>{audit.pageTitle || "—"}</dd>
           </div>
           <div>
-            <dt>Tracking client-side</dt>
-            <dd>{booleanLabel(summary?.clientSideTrackingFound)}</dd>
+            <dt>Modo da auditoria</dt>
+            <dd>{modeLabel(typeof mode === "string" ? mode : undefined)}</dd>
           </div>
           <div>
-            <dt>dataLayer</dt>
-            <dd>{booleanLabel(summary?.dataLayerFound)}</dd>
+            <dt>Status</dt>
+            <dd>{auditStatus}</dd>
           </div>
-          <div className="wide">
-            <dt>Nota</dt>
-            <dd>{summary?.note ?? "Sem nota de confiabilidade."}</dd>
+          <div>
+            <dt>Qualidade da coleta</dt>
+            <dd>{qualityLabel(audit.collectionQuality ?? summary?.collectionQuality)}</dd>
+          </div>
+          <div>
+            <dt>Motivo de falha</dt>
+            <dd>{audit.failureReason ?? summary?.failureReason ?? "—"}</dd>
+          </div>
+          <div>
+            <dt>Tracking client-side encontrado</dt>
+            <dd>{yesNo(summary?.clientSideTrackingFound)}</dd>
+          </div>
+          <div>
+            <dt>dataLayer encontrado</dt>
+            <dd>{yesNo(summary?.dataLayerFound)}</dd>
+          </div>
+          <div>
+            <dt>Ferramentas detectadas</dt>
+            <dd>{summary?.toolsDetected ?? audit.tools.filter((tool) => tool.found).length}</dd>
+          </div>
+          <div>
+            <dt>Eventos detectados</dt>
+            <dd>{summary?.eventsDetected ?? audit.events.length}</dd>
+          </div>
+          <div>
+            <dt>Issues</dt>
+            <dd>{summary?.issuesFound ?? audit.issues.length}</dd>
           </div>
         </dl>
       </section>

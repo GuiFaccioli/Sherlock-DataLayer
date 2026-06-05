@@ -54,9 +54,14 @@ npm run build
 Tela única para:
 
 - enviar URL para `POST /audits`;
-- exibir summary;
+- exibir resumo técnico;
 - listar ferramentas detectadas;
-- listar issues;
-- listar eventos.
+- listar dataLayer e eventos;
+- listar requests/evidências;
+- listar interações testadas;
+- listar problemas técnicos;
+- exibir JSON bruto colapsável para debug.
 
 O visual segue a direção de dev tools/debugging do `DESIGN.MD`, com canvas midnight-violet, acentos lime/pink e componentes simples. Não é um dashboard final complexo.
+
+A apresentação dos resultados é organizada por tópicos técnicos e evita textos opinativos/recomendações. O foco é evidência: encontrado, não encontrado, detectado, não detectado, executado, não executado e não validado.

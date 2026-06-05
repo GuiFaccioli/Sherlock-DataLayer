@@ -27,3 +27,5 @@
 - Criado `docs/INTERACTION_AUDIT.md`.
 - Melhorada a classificação de interações para separar cliques executados, cliques bloqueados por overlay/modal, timeouts, navegação e cliques executados sem tracking.
 - Atualizado `interactionSummary` para separar `executedWithoutTracking` de `notExecutedWithoutValidation`.
+- Reorganizado frontend para exibir resultados por evidências técnicas: resumo, ferramentas, dataLayer, eventos, requests, interações, problemas e JSON bruto colapsável.
+- Reduzidos textos opinativos no frontend, substituindo interpretação por leitura técnica objetiva.

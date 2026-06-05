@@ -7,6 +7,7 @@ import { EventsList } from "./components/EventsList";
 import { InteractionsPanel } from "./components/InteractionsPanel";
 import { IssuesList } from "./components/IssuesList";
 import { SummaryCards } from "./components/SummaryCards";
+import { TechnicalJson } from "./components/TechnicalJson";
 import { ToolsList } from "./components/ToolsList";
 import { TrackingSignals } from "./components/TrackingSignals";
 import type { AuditMode, AuditResponse } from "./types/audit";
@@ -61,19 +62,16 @@ function App() {
         <div className="results-grid">
           <SummaryCards audit={audit} />
           <AuditStatusPanel audit={audit} />
-          <div className="two-column-grid">
-            <ToolsList tools={audit.tools} />
-            <IssuesList issues={audit.issues} />
-          </div>
-          <div className="two-column-grid">
-            <DataLayerPanel
-              found={Boolean(audit.summary?.dataLayerFound)}
-              events={audit.events}
-            />
-            <TrackingSignals audit={audit} />
-          </div>
-          <InteractionsPanel audit={audit} />
+          <ToolsList tools={audit.tools} />
+          <DataLayerPanel
+            found={Boolean(audit.summary?.dataLayerFound)}
+            events={audit.events}
+          />
           <EventsList events={audit.events} />
+          <TrackingSignals audit={audit} />
+          <InteractionsPanel audit={audit} />
+          <IssuesList issues={audit.issues} />
+          <TechnicalJson audit={audit} />
         </div>
       )}
     </main>

@@ -1,4 +1,5 @@
 import type { DetectedEvent } from "../types/audit";
+import { yesNo } from "../utils/labels";
 
 interface DataLayerPanelProps {
   found: boolean;
@@ -11,13 +12,17 @@ export function DataLayerPanel({ found, events }: DataLayerPanelProps) {
   return (
     <section className="panel list-panel">
       <div className="section-title compact">
-        <p className="eyebrow">dataLayer</p>
-        <h2>Eventos de negócio</h2>
+        <p className="eyebrow">3. dataLayer</p>
+        <h2>Dado e evento</h2>
       </div>
-      <dl className="mini-dl single">
+      <dl className="summary-list two-cols compact-list">
         <div>
           <dt>Encontrado</dt>
-          <dd>{found ? "Sim" : "Não"}</dd>
+          <dd>{yesNo(found)}</dd>
+        </div>
+        <div>
+          <dt>Quantidade de eventos</dt>
+          <dd>{dataLayerEvents.length}</dd>
         </div>
       </dl>
       {dataLayerEvents.length === 0 ? (
@@ -25,7 +30,9 @@ export function DataLayerPanel({ found, events }: DataLayerPanelProps) {
       ) : (
         <ul className="signal-list">
           {dataLayerEvents.map((event) => (
-            <li key={event.id ?? event.originalName}>{event.originalName}</li>
+            <li key={event.id ?? event.originalName}>
+              <span className="code-text">{event.originalName}</span>
+            </li>
           ))}
         </ul>
       )}

@@ -5,23 +5,26 @@ interface TrackingSignalsProps {
 }
 
 export function TrackingSignals({ audit }: TrackingSignalsProps) {
-  const signals = audit.tools
-    .filter((tool) => tool.found)
-    .map((tool) => tool.evidence?.evidencePreview || tool.identifier || tool.name)
-    .filter(Boolean);
+  const toolEvidence = audit.tools
+    .filter((tool) => tool.found && tool.evidence?.evidencePreview)
+    .map((tool) => tool.evidence?.evidencePreview as string);
+  const interactionRequests = (audit.interactions ?? []).flatMap(
+    (interaction) => interaction.trackingRequestsAfterClick,
+  );
+  const signals = [...new Set([...toolEvidence, ...interactionRequests])];
 
   return (
     <section className="panel list-panel">
       <div className="section-title compact">
-        <p className="eyebrow">Scripts e sinais de tracking</p>
-        <h2>Evidências resumidas</h2>
+        <p className="eyebrow">5. Requests e evidências</p>
+        <h2>Dado bruto capturado</h2>
       </div>
       {signals.length === 0 ? (
-        <p className="muted">Nenhum sinal principal de tracking foi encontrado.</p>
+        <p className="muted">Nenhuma URL/request de tracking foi listada na resposta.</p>
       ) : (
         <ul className="signal-list">
           {signals.map((signal) => (
-            <li key={signal}>{signal}</li>
+            <li className="code-text" key={signal}>{signal}</li>
           ))}
         </ul>
       )}

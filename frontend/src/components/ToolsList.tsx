@@ -8,50 +8,44 @@ export function ToolsList({ tools }: ToolsListProps) {
   return (
     <section className="panel list-panel">
       <div className="section-title compact">
-        <p className="eyebrow">Ferramentas detectadas</p>
-        <h2>Destino e coleta</h2>
+        <p className="eyebrow">2. Ferramentas detectadas</p>
+        <h2>Coleta e destino</h2>
       </div>
 
       {tools.length === 0 ? (
         <p className="muted">Nenhuma ferramenta retornada pela auditoria.</p>
       ) : (
-        <div className="stack-list">
-          {tools.map((tool) => (
-            <article className="tool-card" key={tool.id ?? tool.name}>
-              <div className="row-between">
-                <div>
-                  <h3>{tool.name}</h3>
-                  <p>{tool.type}</p>
-                </div>
-                <span className={tool.found ? "status-pill found" : "status-pill neutral"}>
-                  {tool.found ? "Encontrado" : "Não encontrado"}
-                </span>
-              </div>
-
-              <dl className="mini-dl">
-                <div>
-                  <dt>Identifier</dt>
-                  <dd>{tool.identifier ?? "—"}</dd>
-                </div>
-                <div>
-                  <dt>Evidence ID</dt>
-                  <dd>{tool.evidence?.identifier ?? "—"}</dd>
-                </div>
-                <div>
-                  <dt>Source</dt>
-                  <dd>{tool.evidence?.source ?? "—"}</dd>
-                </div>
-                <div>
-                  <dt>Matched pattern</dt>
-                  <dd className="code-text">{tool.evidence?.matchedPattern ?? "—"}</dd>
-                </div>
-              </dl>
-
-              {tool.evidence?.evidencePreview ? (
-                <pre className="evidence-preview">{tool.evidence.evidencePreview}</pre>
-              ) : null}
-            </article>
-          ))}
+        <div className="events-table-wrap">
+          <table className="events-table evidence-table">
+            <thead>
+              <tr>
+                <th>Ferramenta</th>
+                <th>Tipo</th>
+                <th>Status</th>
+                <th>ID encontrado</th>
+                <th>Origem</th>
+                <th>Padrão</th>
+                <th>URL/request relacionado</th>
+              </tr>
+            </thead>
+            <tbody>
+              {tools.map((tool) => (
+                <tr key={tool.id ?? tool.name}>
+                  <td>{tool.name}</td>
+                  <td>{tool.type}</td>
+                  <td>
+                    <span className={tool.found ? "status-pill found" : "status-pill neutral"}>
+                      {tool.found ? "Encontrado" : "Não encontrado"}
+                    </span>
+                  </td>
+                  <td className="code-text">{tool.identifier ?? tool.evidence?.identifier ?? "—"}</td>
+                  <td>{tool.evidence?.source ?? "—"}</td>
+                  <td className="code-text">{tool.evidence?.matchedPattern ?? "—"}</td>
+                  <td className="breakable code-text">{tool.evidence?.evidencePreview ?? "—"}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       )}
     </section>
