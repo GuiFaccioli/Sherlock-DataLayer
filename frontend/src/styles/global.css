@@ -178,6 +178,23 @@ h1 span {
 .panel { padding: 24px; }
 .section-title h2 { margin-bottom: 0; font-size: 24px; line-height: 1.2; }
 .section-title.compact { margin-bottom: 18px; }
+.section-title-with-action {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+.copy-json-button {
+  border: 1px solid var(--hairline-violet);
+  border-radius: 8px;
+  padding: 8px 12px;
+  color: var(--on-primary);
+  background: rgba(255, 255, 255, .08);
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.copy-json-button:hover { background: rgba(255, 255, 255, .14); }
 .summary-list {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
