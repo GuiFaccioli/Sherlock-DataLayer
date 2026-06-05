@@ -7,10 +7,14 @@
     "start": "nest start",
     "start:dev": "nest start --watch",
     "build": "nest build",
+    "start:prod": "node dist/main.js",
     "lint": "tsc --noEmit",
     "format": "prettier --write \"src/**/*.ts\"",
     "prisma:generate": "prisma generate",
-    "prisma:migrate": "prisma migrate dev"
+    "prisma:migrate": "prisma migrate dev",
+    "prisma:migrate:deploy": "prisma migrate deploy",
+    "playwright:install": "playwright install --with-deps chromium",
+    "render:build": "npm run prisma:generate && npm run playwright:install && npm run build"
   },
   "dependencies": {
     "@nestjs/common": "latest",

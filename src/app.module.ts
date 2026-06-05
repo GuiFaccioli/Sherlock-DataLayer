@@ -6,6 +6,7 @@ import { BrowserModule } from "./browser/browser.module";
 import { CollectorsModule } from "./collectors/collectors.module";
 import { DetectorsModule } from "./detectors/detectors.module";
 import { PrismaModule } from "./prisma/prisma.module";
+import { HealthController } from "./health.controller";
 
 @Module({
   imports: [
@@ -17,5 +18,6 @@ import { PrismaModule } from "./prisma/prisma.module";
     AnalyzersModule,
     AuditsModule,
   ],
+  controllers: [HealthController],
 })
 export class AppModule {}
