@@ -29,6 +29,9 @@
 - Auditorias agora classificam qualidade com `auditStatus`, `collectionQuality` e `failureReason`, diferenciando auditoria completa, parcial, bloqueada, timeout e falha.
 - Sites bloqueados ou com timeout não são tratados como simples ausência de tracking.
 - Frontend exibe status da auditoria, qualidade da coleta, motivo de falha e interpretação em linguagem simples.
+- `POST /audits` aceita `mode=page_load` (padrão) ou `mode=interaction`.
+- Auditoria de interação testa até 5 cliques seguros, compara dataLayer antes/depois e separa `pageLoadTrackingRequests` de `interactionTrackingRequests`.
+- Resultados de interação são salvos em `interactions` e `interactionSummary`.
 - Build do backend exclui `frontend/` no `tsconfig.json`; Render compila apenas backend e Vercel compila apenas frontend.
 - Render deve usar Build Filters / Ignore Paths para `frontend/**` e `docs/**`.
 
@@ -51,6 +54,7 @@
 - `npm run build`
 - `cd frontend && npm install`
 - `cd frontend && npm run build`
+- Testes manuais com `example.com`, `rdstation.com` e `nike.com.br` para page load/interação
 
 ## Limitação conhecida
 

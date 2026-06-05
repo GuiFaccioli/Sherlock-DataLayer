@@ -21,3 +21,7 @@
 - Adicionada classificação de qualidade da auditoria (`auditStatus`, `collectionQuality`, `failureReason`) para diferenciar auditoria completa, parcial, bloqueio, timeout e falha.
 - Frontend atualizado para exibir status da auditoria, dataLayer, sinais de tracking, issues e interpretação do resultado.
 - Criado `docs/AUDIT_QUALITY.md`.
+- Adicionado modo `interaction` em `POST /audits`, com cliques seguros limitados, captura de novos eventos no dataLayer e requests de tracking após interação.
+- Persistidos `interactions` e `interactionSummary` no Prisma.
+- Frontend atualizado com seletor de modo de auditoria e painel de interações testadas.
+- Criado `docs/INTERACTION_AUDIT.md`.

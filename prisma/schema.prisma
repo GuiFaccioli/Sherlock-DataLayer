@@ -16,9 +16,11 @@ model Audit {
   failureReason     String?
   startedAt         DateTime        @default(now())
   finishedAt DateTime?
-  rawData    Json?
-  summary    Json?
-  tools      DetectedTool[]
+  rawData            Json?
+  summary            Json?
+  interactions       Json?
+  interactionSummary Json?
+  tools              DetectedTool[]
   events     DetectedEvent[]
   issues     Issue[]
 

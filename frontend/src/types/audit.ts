@@ -10,6 +10,35 @@ export type FailureReason =
   | "unknown_error"
   | string;
 
+export type AuditMode = "page_load" | "interaction";
+
+export interface InteractionResult {
+  action: "click";
+  selector?: string;
+  elementText: string;
+  elementTag: string;
+  elementRole: string | null;
+  urlBefore: string;
+  urlAfter: string;
+  dataLayerEventsBefore?: number;
+  dataLayerEventsAfter?: number;
+  newDataLayerEvents: string[];
+  trackingRequestsAfterClick: string[];
+  trackingDetected: boolean;
+  quality: "high" | "medium" | "low" | string;
+  issues: string[];
+}
+
+export interface InteractionSummary {
+  enabled: boolean;
+  totalElementsFound: number;
+  totalElementsTested: number;
+  interactionsWithTracking: number;
+  interactionsWithoutTracking: number;
+  eventsDetected: string[];
+  quality: "high" | "medium" | "low" | "unknown" | string;
+}
+
 export interface AuditSummary {
   clientSideTrackingFound: boolean;
   dataLayerFound: boolean;
@@ -21,6 +50,8 @@ export interface AuditSummary {
   collectionQuality?: CollectionQuality;
   failureReason?: FailureReason;
   interpretation?: string;
+  mode?: AuditMode | string;
+  interactionSummary?: InteractionSummary | null;
   note: string;
   [key: string]: unknown;
 }
@@ -75,6 +106,8 @@ export interface AuditResponse {
   failureReason?: FailureReason;
   pageTitle: string | null;
   summary: AuditSummary | null;
+  interactions?: InteractionResult[];
+  interactionSummary?: InteractionSummary | null;
   tools: DetectedTool[];
   events: DetectedEvent[];
   issues: Issue[];

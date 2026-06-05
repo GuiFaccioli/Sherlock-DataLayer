@@ -1,5 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { AuditQualityClassification } from "../audits/audit-quality";
+import { InteractionSummaryEvidence } from "../browser/playwright.service";
 import { DataLayerEventEvidence } from "../collectors/datalayer.collector";
 import { NetworkEventEvidence } from "../collectors/network.collector";
 import { ToolDetectionResult } from "../detectors/detector.types";
@@ -22,6 +23,7 @@ export class IssueAnalyzerService {
     events: AuditEventEvidence[],
     dataLayer: unknown[] | null,
     quality: AuditQualityClassification,
+    interactionSummary?: InteractionSummaryEvidence | null,
   ): IssueEvidence[] {
     const issues: IssueEvidence[] = [];
     const toolFound = (name: string) =>
@@ -33,6 +35,7 @@ export class IssueAnalyzerService {
       quality.auditStatus === "completed" || quality.auditStatus === "partial";
 
     issues.push(...this.qualityIssues(quality));
+    issues.push(...this.interactionIssues(interactionSummary));
 
     if (canEvaluateAbsence) {
       if (!toolFound("Google Tag Manager")) {
@@ -145,7 +148,8 @@ export class IssueAnalyzerService {
         },
         {
           severity: "high",
-          title: "Auditoria incompleta: não foi possível validar tracking com segurança",
+          title:
+            "Auditoria incompleta: não foi possível validar tracking com segurança",
           description:
             "O conteúdo analisado pode ser uma página de bloqueio, e não a experiência real de um usuário.",
           evidence: { auditStatus: quality.auditStatus },
@@ -160,7 +164,8 @@ export class IssueAnalyzerService {
         {
           severity: "high",
           title: "Timeout ao carregar a página",
-          description: "A auditoria atingiu o tempo limite antes de concluir a coleta.",
+          description:
+            "A auditoria atingiu o tempo limite antes de concluir a coleta.",
           evidence: { failureReason: quality.failureReason },
           businessImpact:
             "O resultado é inconclusivo e deve ser tratado como baixa confiabilidade.",
@@ -173,7 +178,8 @@ export class IssueAnalyzerService {
         {
           severity: "high",
           title: "Erro de navegação",
-          description: "A auditoria falhou antes de coletar evidências suficientes.",
+          description:
+            "A auditoria falhou antes de coletar evidências suficientes.",
           evidence: { failureReason: quality.failureReason },
           businessImpact:
             "Não dá para afirmar se o site possui ou não tracking client-side sem uma nova tentativa ou investigação manual.",
@@ -185,12 +191,50 @@ export class IssueAnalyzerService {
       return [
         {
           severity: "medium",
-          title: "Auditoria incompleta: não foi possível validar tracking com segurança",
+          title:
+            "Auditoria incompleta: não foi possível validar tracking com segurança",
           description:
             "A página carregou parcialmente ou não atingiu estado estável de rede durante a coleta.",
           evidence: { auditStatus: quality.auditStatus },
           businessImpact:
             "Use o resultado como indício, não como conclusão definitiva sobre a qualidade do tracking.",
+        },
+      ];
+    }
+
+    return [];
+  }
+
+  private interactionIssues(
+    interactionSummary?: InteractionSummaryEvidence | null,
+  ): IssueEvidence[] {
+    if (!interactionSummary?.enabled) return [];
+
+    if (interactionSummary.totalElementsTested === 0) {
+      return [
+        {
+          severity: "low",
+          title: "Nenhum elemento interativo relevante testado",
+          description:
+            "A auditoria de interação não encontrou botões ou links seguros/relevantes para clicar.",
+          evidence: { interactionSummary },
+          businessImpact:
+            "A ausência de teste de interação limita a validação de eventos de clique e CTAs.",
+        },
+      ];
+    }
+
+    if (interactionSummary.interactionsWithoutTracking > 0) {
+      return [
+        {
+          severity:
+            interactionSummary.interactionsWithTracking > 0 ? "medium" : "high",
+          title: "Cliques importantes sem sinal visível de tracking",
+          description:
+            "Uma ou mais interações testadas não geraram dataLayer event nem request de tracking visível no navegador.",
+          evidence: { interactionSummary },
+          businessImpact:
+            "CTAs sem eventos visíveis podem reduzir a confiabilidade de métricas de conversão, funil e performance de campanhas.",
         },
       ];
     }

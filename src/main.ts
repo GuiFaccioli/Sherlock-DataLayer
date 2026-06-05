@@ -14,10 +14,13 @@ async function bootstrap() {
   );
 
   const config = app.get(ConfigService);
-  const frontendUrl = process.env.FRONTEND_URL ?? config.get<string>("FRONTEND_URL");
+  const frontendUrl =
+    process.env.FRONTEND_URL ?? config.get<string>("FRONTEND_URL");
   const allowedOrigins = [
     "http://localhost:5173",
-    ...(frontendUrl ? frontendUrl.split(",").map((origin) => origin.trim()) : []),
+    ...(frontendUrl
+      ? frontendUrl.split(",").map((origin) => origin.trim())
+      : []),
   ];
 
   app.enableCors({

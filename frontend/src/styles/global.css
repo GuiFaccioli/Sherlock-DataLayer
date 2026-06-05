@@ -101,6 +101,27 @@ h1 span {
   background: rgba(255, 255, 255, .08);
 }
 .audit-form input::placeholder { color: var(--on-dark-muted); }
+.mode-selector {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 18px;
+  align-items: center;
+  margin: 0;
+  border: 1px solid var(--hairline-violet);
+  border-radius: 12px;
+  padding: 12px 14px;
+  color: var(--on-dark-muted);
+}
+.mode-selector legend {
+  padding: 0 6px;
+  color: var(--accent-lime);
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+.mode-selector label { display: inline-flex; gap: 8px; align-items: center; }
+.mode-selector input { min-height: auto; accent-color: var(--accent-lime); }
 .audit-form button {
   min-height: 48px;
   border: 0;
@@ -213,6 +234,7 @@ dd { margin: 5px 0 0; line-height: 1.5; }
 .status-completed { border-color: rgba(194, 239, 78, .55); }
 .signal-list { margin: 14px 0 0; padding-left: 20px; color: var(--on-dark-muted); line-height: 1.8; }
 .signal-list li { overflow-wrap: anywhere; }
+.warning-list { color: var(--accent-pink); }
 
 .events-table-wrap { overflow-x: auto; }
 .events-table { width: 100%; border-collapse: collapse; min-width: 780px; }

@@ -4,23 +4,24 @@ import { AuditForm } from "./components/AuditForm";
 import { AuditStatusPanel } from "./components/AuditStatusPanel";
 import { DataLayerPanel } from "./components/DataLayerPanel";
 import { EventsList } from "./components/EventsList";
+import { InteractionsPanel } from "./components/InteractionsPanel";
 import { IssuesList } from "./components/IssuesList";
 import { SummaryCards } from "./components/SummaryCards";
 import { ToolsList } from "./components/ToolsList";
 import { TrackingSignals } from "./components/TrackingSignals";
-import type { AuditResponse } from "./types/audit";
+import type { AuditMode, AuditResponse } from "./types/audit";
 
 function App() {
   const [audit, setAudit] = useState<AuditResponse | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  async function handleAudit(url: string) {
+  async function handleAudit(url: string, mode: AuditMode) {
     setIsLoading(true);
     setError(null);
 
     try {
-      const result = await createAudit(url);
+      const result = await createAudit(url, mode);
       setAudit(result);
     } catch (caught) {
       const message = caught instanceof Error ? caught.message : "Erro inesperado ao auditar URL.";
@@ -71,6 +72,7 @@ function App() {
             />
             <TrackingSignals audit={audit} />
           </div>
+          <InteractionsPanel audit={audit} />
           <EventsList events={audit.events} />
         </div>
       )}

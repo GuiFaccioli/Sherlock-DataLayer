@@ -31,7 +31,8 @@ export class AuditsService {
     });
 
     try {
-      const browserEvidence = await this.playwright.inspectUrl(dto.url);
+      const mode = dto.mode ?? "page_load";
+      const browserEvidence = await this.playwright.inspectUrl(dto.url, mode);
       const quality = classifySuccessfulAudit(browserEvidence);
       const tools = this.trackingDetector.detectTools(browserEvidence);
       const dataLayerEvents = this.dataLayerCollector.collectEvents(
@@ -46,6 +47,7 @@ export class AuditsService {
         events,
         browserEvidence.dataLayer,
         quality,
+        browserEvidence.interactionSummary,
       );
       const summary = this.buildSummary(
         tools,
@@ -53,6 +55,8 @@ export class AuditsService {
         issues,
         browserEvidence.dataLayer,
         quality,
+        mode,
+        browserEvidence.interactionSummary,
       );
 
       const transaction: Prisma.PrismaPromise<unknown>[] = [
@@ -112,6 +116,10 @@ export class AuditsService {
             finishedAt: new Date(),
             rawData: browserEvidence as unknown as Prisma.InputJsonValue,
             summary: summary as Prisma.InputJsonValue,
+            interactions:
+              browserEvidence.interactions as unknown as Prisma.InputJsonValue,
+            interactionSummary:
+              browserEvidence.interactionSummary as unknown as Prisma.InputJsonValue,
           },
         }),
       );
@@ -134,7 +142,9 @@ export class AuditsService {
         auditStatus: quality.auditStatus,
         collectionQuality: quality.collectionQuality,
         failureReason: quality.failureReason,
-        interpretation: buildInterpretation(quality, []),
+        mode: dto.mode ?? "page_load",
+        interactionSummary: null,
+        interpretation: buildInterpretation(quality, [], null),
         note: "A auditoria valida evidências client-side. Não confirma chegada real nas plataformas sem acesso interno.",
         error: errorMessage,
       };
@@ -206,6 +216,8 @@ export class AuditsService {
       failureReason: audit.failureReason ?? null,
       pageTitle: rawData?.pageTitle ?? null,
       summary: audit.summary,
+      interactions: audit.interactions ?? [],
+      interactionSummary: audit.interactionSummary ?? null,
       tools: audit.tools,
       events: audit.events,
       issues: audit.issues,
@@ -218,6 +230,8 @@ export class AuditsService {
     issues: unknown[],
     dataLayer: unknown[] | null,
     quality: AuditQualityClassification,
+    mode: string,
+    interactionSummary: unknown,
   ): Record<string, unknown> {
     const toolsDetected = tools.filter((tool) => tool.found).length;
     const issuesFound = issues.length;
@@ -236,7 +250,9 @@ export class AuditsService {
       auditStatus: quality.auditStatus,
       collectionQuality: quality.collectionQuality,
       failureReason: quality.failureReason,
-      interpretation: buildInterpretation(quality, tools),
+      mode,
+      interactionSummary,
+      interpretation: buildInterpretation(quality, tools, interactionSummary),
       note: "A auditoria valida evidências client-side. Não confirma chegada real nas plataformas sem acesso interno.",
     };
   }
@@ -271,7 +287,8 @@ export class AuditsService {
       return {
         severity: "high",
         title: "Timeout ao carregar a página",
-        description: "A auditoria atingiu o tempo limite antes de concluir a coleta.",
+        description:
+          "A auditoria atingiu o tempo limite antes de concluir a coleta.",
         evidence: { error: errorMessage, failureReason: quality.failureReason },
         businessImpact:
           "O resultado é inconclusivo e deve ser tratado como baixa confiabilidade.",

@@ -23,6 +23,20 @@ Body:
 }
 ```
 
+`mode` é opcional e preserva compatibilidade. Valores:
+
+- `page_load` — padrão, audita o carregamento inicial.
+- `interaction` — audita carregamento inicial e até 5 interações básicas seguras.
+
+Exemplo com interação:
+
+```json
+{
+  "url": "https://www.exemplo.com.br",
+  "mode": "interaction"
+}
+```
+
 Resposta: auditoria com `auditId`, `url`, `finalUrl`, `status`, `auditStatus`, `collectionQuality`, `failureReason`, `pageTitle`, `summary`, `tools`, `events` e `issues`.
 
 Campos de qualidade:
@@ -43,6 +57,37 @@ Campos de qualidade:
 ```
 
 Se `auditStatus` for `blocked`, `timeout` ou `failed`, não é seguro concluir ausência de tracking.
+
+Quando `mode=interaction`, a resposta também pode trazer:
+
+```json
+{
+  "interactionSummary": {
+    "enabled": true,
+    "totalElementsFound": 12,
+    "totalElementsTested": 5,
+    "interactionsWithTracking": 2,
+    "interactionsWithoutTracking": 3,
+    "eventsDetected": ["generate_lead", "click_cta"],
+    "quality": "medium"
+  },
+  "interactions": [
+    {
+      "action": "click",
+      "elementText": "Fale com vendas",
+      "elementTag": "button",
+      "elementRole": null,
+      "urlBefore": "https://site.com",
+      "urlAfter": "https://site.com",
+      "newDataLayerEvents": ["generate_lead"],
+      "trackingRequestsAfterClick": ["https://www.google-analytics.com/g/collect?..."],
+      "trackingDetected": true,
+      "quality": "high",
+      "issues": []
+    }
+  ]
+}
+```
 
 Exemplo resumido de `tools`:
 

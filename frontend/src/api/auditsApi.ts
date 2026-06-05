@@ -7,13 +7,16 @@ if (!API_URL) {
   console.warn("VITE_API_URL is not configured. Create frontend/.env from .env.example.");
 }
 
-export async function createAudit(url: string): Promise<AuditResponse> {
+export async function createAudit(
+  url: string,
+  mode: "page_load" | "interaction" = "page_load",
+): Promise<AuditResponse> {
   const response = await fetch(`${API_URL}/audits`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ url }),
+    body: JSON.stringify({ url, mode }),
   });
 
   const payload = await response.json().catch(() => null);

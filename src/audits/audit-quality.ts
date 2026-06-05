@@ -1,6 +1,11 @@
 import { BrowserAuditEvidence } from "../browser/playwright.service";
 
-export type AuditStatus = "completed" | "partial" | "blocked" | "timeout" | "failed";
+export type AuditStatus =
+  | "completed"
+  | "partial"
+  | "blocked"
+  | "timeout"
+  | "failed";
 export type CollectionQuality = "high" | "medium" | "low" | "unknown";
 export type FailureReason =
   | null
@@ -30,10 +35,15 @@ export function classifySuccessfulAudit(
   }
 
   const hasBasicPageEvidence = Boolean(evidence.finalUrl || evidence.pageTitle);
-  const hasCollectionEvidence = evidence.requests.length > 0 || evidence.scripts.length > 0;
+  const hasCollectionEvidence =
+    evidence.requests.length > 0 || evidence.scripts.length > 0;
   const dataLayerReadable = evidence.dataLayer !== null;
 
-  if (!evidence.networkIdleReached || !hasBasicPageEvidence || !hasCollectionEvidence) {
+  if (
+    !evidence.networkIdleReached ||
+    !hasBasicPageEvidence ||
+    !hasCollectionEvidence
+  ) {
     return {
       auditStatus: "partial",
       collectionQuality: hasCollectionEvidence ? "medium" : "low",
@@ -43,7 +53,8 @@ export function classifySuccessfulAudit(
 
   return {
     auditStatus: "completed",
-    collectionQuality: dataLayerReadable || evidence.scripts.length > 0 ? "high" : "medium",
+    collectionQuality:
+      dataLayerReadable || evidence.scripts.length > 0 ? "high" : "medium",
     failureReason: null,
   };
 }
@@ -53,7 +64,11 @@ export function classifyAuditError(error: unknown): AuditQualityClassification {
   const normalized = message.toLowerCase();
 
   if (normalized.includes("timeout")) {
-    return { auditStatus: "timeout", collectionQuality: "unknown", failureReason: "timeout" };
+    return {
+      auditStatus: "timeout",
+      collectionQuality: "unknown",
+      failureReason: "timeout",
+    };
   }
 
   if (
@@ -61,7 +76,11 @@ export function classifyAuditError(error: unknown): AuditQualityClassification {
     normalized.includes("certificate") ||
     normalized.includes("net::err_cert")
   ) {
-    return { auditStatus: "failed", collectionQuality: "unknown", failureReason: "ssl_error" };
+    return {
+      auditStatus: "failed",
+      collectionQuality: "unknown",
+      failureReason: "ssl_error",
+    };
   }
 
   if (normalized.includes("net::") || normalized.includes("navigation")) {
@@ -72,15 +91,31 @@ export function classifyAuditError(error: unknown): AuditQualityClassification {
     };
   }
 
-  return { auditStatus: "failed", collectionQuality: "unknown", failureReason: "unknown_error" };
+  return {
+    auditStatus: "failed",
+    collectionQuality: "unknown",
+    failureReason: "unknown_error",
+  };
 }
 
 export function buildInterpretation(
   quality: AuditQualityClassification,
   tools: { name: string; found: boolean }[],
+  interactionSummary?: unknown,
 ): string {
   const hasTools = tools.some((tool) => tool.found);
-  const hasGtm = tools.some((tool) => tool.name === "Google Tag Manager" && tool.found);
+  const hasGtm = tools.some(
+    (tool) => tool.name === "Google Tag Manager" && tool.found,
+  );
+  const interaction = interactionSummary as
+    | {
+        enabled?: boolean;
+        interactionsWithTracking?: number;
+        interactionsWithoutTracking?: number;
+        totalElementsTested?: number;
+      }
+    | null
+    | undefined;
 
   if (quality.auditStatus === "blocked") {
     return "O site bloqueou a auditoria automatizada. Não é seguro concluir que não existe tracking, porque a página analisada pode não ser a mesma que um usuário real vê.";
@@ -98,6 +133,17 @@ export function buildInterpretation(
     return "A auditoria coletou alguns sinais, mas a página não foi validada com segurança total. Use o resultado como indício, não como conclusão definitiva.";
   }
 
+  if (interaction?.enabled && (interaction.totalElementsTested ?? 0) > 0) {
+    if ((interaction.interactionsWithTracking ?? 0) > 0) {
+      if (hasTools && (interaction.interactionsWithoutTracking ?? 0) > 0) {
+        return "O site possui tracking no carregamento da página, mas alguns cliques importantes não geraram sinais visíveis. Isso pode indicar tracking incompleto de eventos.";
+      }
+      return "A auditoria testou interações básicas e encontrou sinais de tracking em alguns cliques. Isso indica que parte das ações do usuário está sendo coletada.";
+    }
+
+    return "A auditoria testou interações importantes, mas não encontrou eventos ou requests de tracking após os cliques. Isso pode indicar ausência de tracking em CTAs importantes ou que a coleta ocorre de forma server-side/não visível no navegador.";
+  }
+
   if (!hasTools) {
     return "Auditoria concluída. Nenhum sinal principal de analytics foi encontrado nesta página. Isso pode indicar ausência de tracking client-side ou uso de coleta server-side não visível pelo navegador.";
   }
@@ -109,7 +155,9 @@ export function buildInterpretation(
   return "Auditoria concluída. O site possui sinais de tracking client-side. Revise ferramentas, eventos e issues para avaliar a confiabilidade da coleta.";
 }
 
-function detectBlockedReason(evidence: BrowserAuditEvidence): Exclude<FailureReason, null> | null {
+function detectBlockedReason(
+  evidence: BrowserAuditEvidence,
+): Exclude<FailureReason, null> | null {
   const text = [evidence.pageTitle, evidence.finalUrl, evidence.bodyTextPreview]
     .filter(Boolean)
     .join("\n")
