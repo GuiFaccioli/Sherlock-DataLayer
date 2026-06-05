@@ -60,6 +60,7 @@ Tela única para:
 - listar requests/evidências;
 - listar interações testadas;
 - listar problemas técnicos;
+- exibir resumo humano gerado localmente a partir do JSON;
 - exibir JSON bruto colapsável para debug.
 
 O visual segue a direção de dev tools/debugging do `DESIGN.MD`, com canvas midnight-violet, acentos lime/pink e componentes simples. Não é um dashboard final complexo.

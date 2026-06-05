@@ -32,7 +32,7 @@ export function TechnicalJson({ audit }: TechnicalJsonProps) {
     <section className="panel technical-json-panel" id="technical-json">
       <div className="section-title compact section-title-with-action">
         <div>
-          <p className="eyebrow">9. JSON técnico</p>
+          <p className="eyebrow">10. JSON técnico</p>
           <h2>Retorno bruto da API</h2>
         </div>
         <button className="copy-json-button" type="button" onClick={handleCopyJson}>

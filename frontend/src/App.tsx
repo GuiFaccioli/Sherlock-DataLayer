@@ -5,6 +5,7 @@ import { AuditSidebar } from "./components/AuditSidebar";
 import { AuditStatusPanel } from "./components/AuditStatusPanel";
 import { DataLayerPanel } from "./components/DataLayerPanel";
 import { EventsList } from "./components/EventsList";
+import { HumanSummary } from "./components/HumanSummary";
 import { InteractionsPanel } from "./components/InteractionsPanel";
 import { IssuesList } from "./components/IssuesList";
 import { SummaryCards } from "./components/SummaryCards";
@@ -74,6 +75,7 @@ function App() {
           <TrackingSignals audit={audit} />
           <InteractionsPanel audit={audit} />
           <IssuesList issues={audit.issues} />
+          <HumanSummary audit={audit} />
           <TechnicalJson audit={audit} />
         </div>
       )}

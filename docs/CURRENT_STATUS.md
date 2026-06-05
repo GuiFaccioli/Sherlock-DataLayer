@@ -36,6 +36,7 @@
 - `interactionSummary` separa `executedWithoutTracking` de `notExecutedWithoutValidation`, evitando transformar falha de auditoria em falha de tracking.
 - Frontend reorganizado por tópicos técnicos: resumo, ferramentas, dataLayer, eventos, requests/evidências, interações, problemas técnicos e JSON bruto colapsável.
 - Frontend agora possui painel lateral fixo com estado vazio/loading, resumo da auditoria, evidências, ferramentas encontradas, métricas de interação e navegação por seções usando os dados reais do JSON.
+- Frontend inclui seção `Resumo humano` antes do JSON técnico, gerada localmente a partir do JSON da auditoria, sem recomendações ou dependência externa.
 - Build do backend exclui `frontend/` no `tsconfig.json`; Render compila apenas backend e Vercel compila apenas frontend.
 - Render deve usar Build Filters / Ignore Paths para `frontend/**` e `docs/**`.
 

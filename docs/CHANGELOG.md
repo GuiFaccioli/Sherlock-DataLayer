@@ -31,3 +31,4 @@
 - Reduzidos textos opinativos no frontend, substituindo interpretação por leitura técnica objetiva.
 - Adicionado painel lateral no frontend com resumo da auditoria e navegação para as seções técnicas.
 - Refinada sidebar para usar dados reais do JSON, com estado vazio/loading, ferramentas encontradas, métricas de interação e navegação via botões.
+- Adicionada seção `Resumo humano` no frontend com parágrafos simples gerados localmente a partir do resultado da auditoria.

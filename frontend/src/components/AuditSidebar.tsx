@@ -115,6 +115,7 @@ export function AuditSidebar({ audit, isLoading = false }: AuditSidebarProps) {
         <button type="button" onClick={() => scrollToSection("requests")}>Requests</button>
         <button type="button" onClick={() => scrollToSection("interactions")}>Interações</button>
         <button type="button" onClick={() => scrollToSection("issues")}>Problemas</button>
+        <button type="button" onClick={() => scrollToSection("human-summary")}>Resumo humano</button>
         <button type="button" onClick={() => scrollToSection("technical-json")}>JSON técnico</button>
       </nav>
     </aside>

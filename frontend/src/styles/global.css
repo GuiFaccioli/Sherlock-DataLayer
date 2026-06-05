@@ -352,6 +352,16 @@ dd { margin: 5px 0 0; line-height: 1.5; }
 details summary { cursor: pointer; color: var(--accent-lime); font-weight: 600; }
 .detail-dl { display: grid; gap: 8px; margin-top: 12px; }
 .detail-dl div { border: 1px solid var(--hairline-violet); border-radius: 10px; padding: 10px; background: rgba(255,255,255,.04); }
+.human-summary-content { display: grid; gap: 12px; }
+.human-summary-content p {
+  margin: 0;
+  border: 1px solid var(--hairline-violet);
+  border-radius: 12px;
+  padding: 14px;
+  color: var(--on-dark-muted);
+  background: rgba(255, 255, 255, .05);
+  line-height: 1.7;
+}
 .technical-json { overflow: auto; max-height: 520px; border-radius: 12px; padding: 16px; background: #100b1c; color: var(--on-primary); font-family: var(--code); font-size: 12px; line-height: 1.55; }
 .evidence-table { min-width: 980px; }
 
