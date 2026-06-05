@@ -1,6 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { BrowserAuditEvidence } from "../browser/playwright.service";
 import {
+  buildNormalizedEvidence,
   firstMatch,
   haystack,
   ToolDetectionResult,
@@ -16,23 +17,19 @@ export class GtmDetector implements ToolDetector {
 
   detect(evidence: BrowserAuditEvidence): ToolDetectionResult {
     const text = haystack(evidence);
-    const matchingRequests = evidence.requests.filter((request) =>
-      this.patterns.some((pattern) => pattern.test(request.url)),
-    );
-    const matchingScripts = evidence.scripts.filter((script) =>
-      this.patterns.some((pattern) => pattern.test(script)),
-    );
     const identifier = firstMatch(text, /GTM-[A-Z0-9_-]+/i);
+    const normalizedEvidence = buildNormalizedEvidence(
+      evidence,
+      this.patterns,
+      identifier,
+    );
 
     return {
       name: "Google Tag Manager",
       type: "tag_manager",
       identifier,
-      found:
-        matchingRequests.length > 0 ||
-        matchingScripts.length > 0 ||
-        Boolean(identifier),
-      evidence: { matchingRequests, matchingScripts, identifier },
+      found: Boolean(identifier) || Boolean(normalizedEvidence.matchedPattern),
+      evidence: normalizedEvidence,
     };
   }
 }

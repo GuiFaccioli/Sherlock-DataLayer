@@ -24,6 +24,7 @@
 - Migrations de produção aplicadas.
 - `POST /audits` cria auditoria e salva issue no banco, mas Playwright precisou de ajuste de runtime porque o Chromium instalado no cache `/opt/render/.cache/ms-playwright` não estava disponível ao executar a auditoria.
 - Runtime do Playwright ajustado com `PLAYWRIGHT_BROWSERS_PATH=0` e Chromium launch args `--no-sandbox` / `--disable-setuid-sandbox`.
+- Detectores agora salvam evidências normalizadas/resumidas em `tools[].evidence` (`identifier`, `matchedPattern`, `source`, `evidencePreview` até 300 caracteres), evitando blocos grandes de HTML/script na resposta da API.
 
 ## Scripts relevantes
 

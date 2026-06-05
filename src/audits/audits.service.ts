@@ -54,7 +54,7 @@ export class AuditsService {
             type: tool.type,
             identifier: tool.identifier,
             found: tool.found,
-            evidence: tool.evidence as Prisma.InputJsonValue,
+            evidence: tool.evidence as unknown as Prisma.InputJsonValue,
           })),
         }),
       ];
