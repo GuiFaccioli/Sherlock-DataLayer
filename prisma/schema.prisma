@@ -1,0 +1,69 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Audit {
+  id         String          @id @default(cuid())
+  url        String
+  status     String
+  startedAt  DateTime        @default(now())
+  finishedAt DateTime?
+  rawData    Json?
+  summary    Json?
+  tools      DetectedTool[]
+  events     DetectedEvent[]
+  issues     Issue[]
+
+  @@index([startedAt])
+  @@index([status])
+}
+
+model DetectedTool {
+  id         String   @id @default(cuid())
+  auditId    String
+  name       String
+  type       String
+  identifier String?
+  found      Boolean  @default(false)
+  evidence   Json?
+  audit      Audit    @relation(fields: [auditId], references: [id], onDelete: Cascade)
+
+  @@index([auditId])
+  @@index([name])
+}
+
+model DetectedEvent {
+  id             String   @id @default(cuid())
+  auditId        String
+  originalName   String
+  normalizedName String
+  source         String
+  destination    String?
+  parameters     Json?
+  rawPayload     Json?
+  detectedAt     DateTime @default(now())
+  audit          Audit    @relation(fields: [auditId], references: [id], onDelete: Cascade)
+
+  @@index([auditId])
+  @@index([normalizedName])
+}
+
+model Issue {
+  id             String  @id @default(cuid())
+  auditId        String
+  severity       String
+  title          String
+  description    String
+  eventName      String?
+  evidence       Json?
+  businessImpact String
+  audit          Audit   @relation(fields: [auditId], references: [id], onDelete: Cascade)
+
+  @@index([auditId])
+  @@index([severity])
+}

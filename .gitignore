@@ -1,3 +1,16 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+tsconfig.tsbuildinfo
+
+# Env
+.env
+
+# Prisma generated artifacts
+prisma/dev.db
+
 # Local Pi runtime state
 .atl/
 .pi/
